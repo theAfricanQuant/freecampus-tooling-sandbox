@@ -1,0 +1,14 @@
+[project]
+name = "freecampus-tooling-sandbox"
+version = "0.1.0"
+description = "A hands-on comparison of Python toolchains"
+requires-python = ">=3.12,<3.13"
+dependencies = []
+
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.group.dev.dependencies]
+makim = "*"
+pytest = "*"
+click = "*"

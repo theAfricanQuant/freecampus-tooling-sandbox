@@ -1,0 +1,9 @@
+groups:
+  lab:
+    tasks:
+      hello:
+        help: Confirm Makim runs in Stage 1
+        run: 'echo "Stage 1: Conda + Poetry + Makim"'
+      render:
+        help: Render the Jupyter notebook to HTML with Quarto
+        run: quarto render notebooks/tooling-lab.ipynb --to html --execute
