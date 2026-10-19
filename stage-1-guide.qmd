@@ -248,5 +248,34 @@ will try Pixi + Makim, then Pixi + Just, and compare how each setup
 feels while using the same notebook.
 :::
 
+## The QMD-first setup we use now
+
+The earlier sections and diagrams describe our first version. We now keep two QMD source files:
+
+- `stage-1-guide.qmd` is the blog page. Makim task `lab.guide` asks Quarto to create `stage-1-guide.html`.
+- `notebooks/tooling-lab.qmd` is the notebook source. Makim task `lab.notebook` asks Quarto to create `notebooks/tooling-lab.ipynb`.
+
+The guide and the notebook both link to the same Colab notebook. The notebook can also be downloaded from the guide. `quarto convert` creates the notebook file; it does not run its Python code. Open the notebook in Colab to run the code there.
+
+Makim is like the marshal at a Lagos motor park: it sends each job to the right place. Quarto does the document work, and Colab is where the learner runs the notebook.
+
+The two Makim tasks are:
+
+```yaml
+notebook:
+  run: quarto convert notebooks/tooling-lab.qmd --output notebooks/tooling-lab.ipynb
+guide:
+  run: quarto render stage-1-guide.qmd --to html
+```
+
+Run them with:
+
+```text
+env -u VIRTUAL_ENV poetry run makim lab.notebook
+env -u VIRTUAL_ENV poetry run makim lab.guide
+```
+
 Learn more: [Makim documentation](https://makim.org/) · [Quarto and
 Python notebooks](https://quarto.org/docs/computations/python)
+
+

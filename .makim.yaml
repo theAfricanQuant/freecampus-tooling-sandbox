@@ -4,6 +4,9 @@ groups:
       hello:
         help: Confirm Makim runs in Stage 1
         run: 'echo "Stage 1: Conda + Poetry + Makim"'
-      render:
-        help: Render the Jupyter notebook to HTML with Quarto
-        run: quarto render notebooks/tooling-lab.ipynb --to html --execute
+      notebook:
+        help: Convert the notebook QMD into a Colab-ready IPYNB
+        run: quarto convert notebooks/tooling-lab.qmd --output notebooks/tooling-lab.ipynb
+      guide:
+        help: Render the Stage 1 guide as HTML
+        run: quarto render stage-1-guide.qmd --to html
