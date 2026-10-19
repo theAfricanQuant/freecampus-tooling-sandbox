@@ -1,0 +1,18 @@
+[workspace]
+authors = ["Ricky Macharm <Ricky.Macharm@SisengAI.com>"]
+channels = ["conda-forge"]
+name = "freecampus-tooling-sandbox"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "3.12.*"
+quarto = "*"
+jupyterlab = "*"
+ipykernel = "*"
+
+[pypi-dependencies]
+makim = ">=1.29.0, <2"
+click = ">=8.5.0, <9"
