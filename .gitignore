@@ -1,0 +1,6 @@
+# Jupyter checkpoints
+/notebooks/.ipynb_checkpoints/
+
+# Quarto-rendered output
+/notebooks/tooling-lab.html
+/notebooks/tooling-lab_files/

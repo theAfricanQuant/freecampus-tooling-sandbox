@@ -1,0 +1,9 @@
+name: freecampus-tooling-sandbox
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - poetry
+  - quarto
+  - jupyterlab
+  - ipykernel
