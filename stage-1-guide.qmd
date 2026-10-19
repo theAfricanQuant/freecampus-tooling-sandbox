@@ -277,5 +277,3 @@ env -u VIRTUAL_ENV poetry run makim lab.guide
 
 Learn more: [Makim documentation](https://makim.org/) · [Quarto and
 Python notebooks](https://quarto.org/docs/computations/python)
-
-
