@@ -369,6 +369,35 @@ env -u VIRTUAL_ENV poetry run makim lab.notebook
 env -u VIRTUAL_ENV poetry run makim lab.guide
 ```
 
+## Stage 2: Makim + Pixi
+
+Stage 1 used Conda to create the environment and Poetry to install Python tools. In Stage 2, Pixi manages both Conda packages, such as Python and Quarto, and PyPI packages, such as Makim. Makim still runs the named tasks from `.makim.yaml`.
+
+We started with the Stage 1 package list and imported it into Pixi:
+
+```sh
+pixi init --import environment.yml
+pixi remove poetry
+pixi add --pypi makim click
+```
+
+`pixi.toml` describes the environment. `pixi.lock` records the exact package versions Pixi resolved. We checked that the environment installs from that lockfile:
+
+```bash
+pixi install --locked
+```
+
+Then we ran the existing notebook and guide tasks through Pixi:
+
+```bash
+pixi run makim lab.notebook
+pixi run makim lab.guide
+```
+
+
+Makim found the tasks, Quarto converted the notebook and rendered the guide. Xonsh printed a deprecation warning, but both tasks completed successfully.
+One difference showed up in the generated files: Pixi used Quarto 1.9.38, while the Stage 1 HTML had been made with Quarto 1.10.18. The notebook also picked up a path to the kernel on this computer. We restored those generated files so local paths and tool-version differences would not appear as accidental changes.
+
 `lab.notebook` makes the Colab-ready notebook. `lab.guide` makes the
 HTML guide. Learn more: [Makim documentation](https://makim.org/) ·
 [Quarto and Python notebooks](https://quarto.org/docs/computations/python)

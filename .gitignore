@@ -4,3 +4,6 @@
 # Quarto-rendered output
 /notebooks/tooling-lab.html
 /notebooks/tooling-lab_files/
+# pixi environments
+.pixi/*
+!.pixi/config.toml
