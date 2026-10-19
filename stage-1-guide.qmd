@@ -137,12 +137,15 @@ setup as a checkpoint before trying Stage 2.
 ::::
 
 ::: section
-## What happens when we render?
+## Our first workflow: render an existing notebook
 
-First, we name the job: `lab.render`. Makim looks up that job in
-`.makim.yaml`, then starts the command written there. Quarto uses Python
-and Jupyter to run the notebook cells and makes the finished HTML
-lesson.
+This section records our first Stage 1 experiment, when we already had
+`notebooks/tooling-lab.ipynb`. We named the task `lab.render`; Makim
+looked it up in `.makim.yaml` and ran Quarto. Quarto and Jupyter ran the
+notebook cells and created an HTML lesson.
+
+We later changed to a QMD-first workflow. Its current tasks are shown
+at the end of this guide.
 
 <figure class="diagram-panel">
 <div class="diagram-scroll" role="region" tabindex="0"
@@ -236,9 +239,10 @@ which tool was responsible and what it needed.
 ::: section
 ## What difference did Makim make?
 
-Without Makim, we would type the long Quarto command ourselves. With
-Makim, the command has a name: `lab.render`. The task is written down
-once, so we can run it again later or share it with another learner.
+In our first version, Makim gave the long Quarto command the short
+name `lab.render`. The task was written down once, so we could run it
+again without remembering the full command. The current QMD-first
+setup uses `lab.notebook` and `lab.guide` for its document tasks.
 
 ### Makim helps with repeatable tasks
 
@@ -248,15 +252,17 @@ once, so we can run it again later or share it with another learner.
 - Preview lessons or documentation on a laptop.
 - Clean generated files when we want a fresh build.
 
-Those are ideas for future tasks. In Stage 1, we made `lab.hello` and
-`lab.render`.
+Those are ideas for future tasks. In our first version, we made
+`lab.hello` and `lab.render`. The current QMD-first setup keeps
+`lab.hello` and adds `lab.notebook` and `lab.guide`.
 :::
 
 ::: section
-## The full Makim file, explained line by line
+## The original Makim file, explained line by line
 
-This is the whole `.makim.yaml` file we made. It gives two commands
-short names.
+This is the `.makim.yaml` file from our first version. It gives two
+commands short names. The current QMD-first tasks are listed at the end
+of this guide.
 
     groups:
       lab:
@@ -321,30 +327,48 @@ feels while using the same notebook.
 
 ## The QMD-first setup we use now
 
-The earlier sections and diagrams describe our first version. We now keep two QMD source files:
+The earlier sections and diagrams describe our first version. In the
+current setup, the QMD files are the sources and Quarto creates the
+files we publish or open in Colab:
 
-- `stage-1-guide.qmd` is the blog page. Makim task `lab.guide` asks Quarto to create `stage-1-guide.html`.
-- `notebooks/tooling-lab.qmd` is the notebook source. Makim task `lab.notebook` asks Quarto to create `notebooks/tooling-lab.ipynb`.
+- `stage-1-guide.qmd` is the guide source. `lab.guide` renders it into
+  `stage-1-guide.html`.
+- `notebooks/tooling-lab.qmd` is the notebook source. `lab.notebook`
+  converts it into `notebooks/tooling-lab.ipynb`.
 
-The guide and the notebook both link to the same Colab notebook. The notebook can also be downloaded from the guide. `quarto convert` creates the notebook file; it does not run its Python code. Open the notebook in Colab to run the code there.
+The guide and notebook link to the Colab notebook. The notebook can also
+be downloaded from the guide. `quarto convert` creates the `.ipynb` file;
+it does not run its Python code. Open the notebook in Colab to run it.
 
-Makim is like the marshal at a Lagos motor park: it sends each job to the right place. Quarto does the document work, and Colab is where the learner runs the notebook.
+Makim is like the marshal at a Lagos motor park: it sends each job to
+the right place. Quarto does the document work, and Colab is where the
+learner runs the notebook. We edit the QMD sources, then run Makim to
+regenerate their outputs; we do not hand-edit the generated HTML.
 
-The two Makim tasks are:
+The current `.makim.yaml` file is:
 
 ```yaml
-notebook:
-  run: quarto convert notebooks/tooling-lab.qmd --output notebooks/tooling-lab.ipynb
-guide:
-  run: quarto render stage-1-guide.qmd --to html
+groups:
+  lab:
+    tasks:
+      hello:
+        help: Confirm Makim runs in Stage 1
+        run: 'echo "Stage 1: Conda + Poetry + Makim"'
+      notebook:
+        help: Convert the notebook QMD into a Colab-ready IPYNB
+        run: quarto convert notebooks/tooling-lab.qmd --output notebooks/tooling-lab.ipynb
+      guide:
+        help: Render the Stage 1 guide as HTML
+        run: quarto render stage-1-guide.qmd --to html
 ```
 
-Run them with:
+Run the document tasks with:
 
-```text
+```sh
 env -u VIRTUAL_ENV poetry run makim lab.notebook
 env -u VIRTUAL_ENV poetry run makim lab.guide
 ```
 
-Learn more: [Makim documentation](https://makim.org/) · [Quarto and
-Python notebooks](https://quarto.org/docs/computations/python)
+`lab.notebook` makes the Colab-ready notebook. `lab.guide` makes the
+HTML guide. Learn more: [Makim documentation](https://makim.org/) ·
+[Quarto and Python notebooks](https://quarto.org/docs/computations/python)

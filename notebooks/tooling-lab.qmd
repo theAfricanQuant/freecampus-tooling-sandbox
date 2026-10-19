@@ -1,5 +1,6 @@
 ---
 title: "Stage 1 Tooling Lab"
+jupyter: python3
 ---
 
 [Open this notebook in Google Colab](https://colab.research.google.com/github/theAfricanQuant/freecampus-tooling-sandbox/blob/main/notebooks/tooling-lab.ipynb)
