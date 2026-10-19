@@ -1,0 +1,13 @@
+---
+title: "Stage 1 Tooling Lab"
+---
+
+[Open this notebook in Google Colab](https://colab.research.google.com/github/theAfricanQuant/freecampus-tooling-sandbox/blob/stage-1/qmd-first/notebooks/tooling-lab.ipynb)
+
+# Hello World
+
+This small notebook checks that our setup can run Python code.
+
+```{python}
+print("Hello from FreeCampus Tooling Sandbox")
+```

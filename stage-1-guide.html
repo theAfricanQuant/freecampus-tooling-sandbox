@@ -1,577 +1,235 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Stage 1: From notebook to web page</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --ink: #17332b;
-      --muted: #52675f;
-      --paper: #fbf8ef;
-      --card: #ffffff;
-      --green: #147d50;
-      --gold: #e6a83b;
-      --line: #d9e4d9;
-    }
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
-    * { box-sizing: border-box; }
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
 
-    body {
-      margin: 0;
-      background: var(--paper);
-      color: var(--ink);
-      font: 1rem/1.65 system-ui, sans-serif;
-    }
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-    main {
-      width: min(100% - 2rem, 850px);
-      margin: 0 auto;
-      padding: 2rem 0 4rem;
-    }
 
-    header {
-      padding: 1.5rem;
-      border-radius: 1.25rem;
-      background: var(--ink);
-      color: white;
-    }
+<title>Stage 1: Conda, Poetry, and Makim</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
 
-    header p { color: #dcebe2; }
 
-    .tag {
-      color: #f7ce77;
-      font-size: .8rem;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
+<script src="stage-1-guide_files/libs/clipboard/clipboard.min.js"></script>
+<script src="stage-1-guide_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="stage-1-guide_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="stage-1-guide_files/libs/quarto-html/popper.min.js"></script>
+<script src="stage-1-guide_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="stage-1-guide_files/libs/quarto-html/anchor.min.js"></script>
+<link href="stage-1-guide_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="stage-1-guide_files/libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="stage-1-guide_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="stage-1-guide_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="stage-1-guide_files/libs/bootstrap/bootstrap-061353bb63c1114f7bc431f25b70a6ec.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
-    h1 { line-height: 1.15; }
-    h2 { margin-top: 2.5rem; }
-    h3 { margin-bottom: .3rem; }
 
-    .card, .step {
-      padding: 1rem 1.2rem;
-      border: 1px solid var(--line);
-      border-radius: 1rem;
-      background: var(--card);
-    }
-
-    .steps {
-      display: grid;
-      gap: .5rem;
-      padding: 0;
-      list-style: none;
-    }
-
-    .step strong { color: var(--green); }
-
-    .arrow {
-      color: var(--green);
-      font-size: 1.5rem;
-      line-height: 1;
-      text-align: center;
-    }
-
-    .tool-grid {
-      display: grid;
-      gap: .8rem;
-    }
-
-    .tool { border-top: 4px solid var(--green); }
-    .tool:nth-child(even) { border-top-color: var(--gold); }
-
-    code, pre {
-      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-    }
-
-    code {
-      overflow-wrap: anywhere;
-      background: #edf3ec;
-      padding: .1rem .3rem;
-      border-radius: .3rem;
-    }
-
-    pre code {
-      background: transparent;
-      color: inherit;
-      padding: 0;
-      border-radius: 0;
-    }
-
-    pre {
-      overflow-x: auto;
-      padding: 1rem;
-      border-radius: .8rem;
-      background: #17332b;
-      color: white;
-    }
-
-    .diagram-panel {
-      margin: 1.25rem 0;
-      padding: 1rem;
-      border: 1px solid var(--line);
-      border-radius: 1rem;
-      background: var(--card);
-    }
-
-    .diagram-panel figcaption {
-      margin: 0 0 .8rem;
-      font-weight: 700;
-      color: var(--ink);
-    }
-
-    .diagram-scroll {
-      width: 100%;
-      overflow-x: auto;
-      overscroll-behavior-x: contain;
-      border-radius: .75rem;
-      background: var(--paper);
-    }
-
-    .diagram-scroll svg {
-      display: block;
-      width: 100%;
-      min-width: 960px;
-      max-width: none;
-      height: auto;
-      font-family: system-ui, sans-serif;
-    }
-
-    .diagram-caption {
-      margin: .7rem 0 0;
-      color: var(--muted);
-      font-size: .9rem;
-    }
-
-    .colab-launch {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: .8rem;
-      margin: 1rem 0 1.5rem;
-    }
-
-    .colab-link {
-      display: inline-block;
-      padding: .7rem 1rem;
-      border-radius: .65rem;
-      background: var(--green);
-      color: #ffffff;
-      font-weight: 700;
-      text-decoration: none;
-    }
-
-    .colab-link:hover, .colab-link:focus-visible {
-      background: #0e6841;
-      text-decoration: underline;
-    }
-
-    .colab-note {
-      margin: 0;
-      color: var(--muted);
-      font-size: .9rem;
-    }
-
-    .market-note {
-      margin: 1rem 0;
-      padding: 1rem;
-      border-left: 5px solid var(--gold);
-      border-radius: .5rem;
-      background: #fff2d7;
-    }
-
-    .error-list li { margin-bottom: 1rem; }
-    .error-list strong { color: var(--green); }
-
-    .note {
-      padding: 1rem;
-      border-left: 5px solid var(--gold);
-      border-radius: .5rem;
-      background: #fff2d7;
-    }
-
-    a { color: var(--green); }
-
-    footer {
-      margin-top: 3rem;
-      padding-top: 1rem;
-      border-top: 1px solid var(--line);
-      color: var(--muted);
-      font-size: .9rem;
-    }
-
-    @media (min-width: 650px) {
-      main { padding-top: 3rem; }
-      header { padding: 2.5rem; }
-      .tool-grid { grid-template-columns: repeat(2, 1fr); }
-      .steps { grid-template-columns: 1fr 1fr; }
-      .arrow { display: none; }
-    }
-  </style>
 </head>
-<body>
-  <main>
-    <header>
-      <p class="tag">FreeCampus Tooling Lab · Stage 1</p>
-      <h1>From a notebook to a web page</h1>
-      <p>
-        We set up a small Python learning project. We wrote a notebook,
-        ran its code, and turned it into an HTML page that opens in a browser.
-      </p>
-    </header>
 
-    <nav class="colab-launch" aria-label="Notebook actions">
-      <a
-        class="colab-link"
-        href="https://colab.research.google.com/github/theAfricanQuant/freecampus-tooling-sandbox/blob/stage-1/conda-poetry-makim/notebooks/tooling-lab.ipynb"
-        target="_blank"
-        rel="noopener"
-      >
-        Open the Stage 1 notebook in Colab ↗
-      </a>
-      <p class="colab-note">
-        The Stage 1 notebook is now on GitHub. Use this link to open it in
-        Colab; the rendered HTML page is a separate file.
-      </p>
-    </nav>
+<body class="quarto-light">
 
-    <section>
-      <h2>The tools, in plain English</h2>
-      <div class="tool-grid">
-        <article class="card tool">
-          <h3>Conda: sets up the workspace</h3>
-          <p>
-            Think of Conda as setting up a classroom before a lesson.
-            It gives us Python and larger tools such as Quarto and Jupyter.
-            The shopping list is <code>environment.yml</code>.
-          </p>
-        </article>
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#the-tools-in-plain-english" id="toc-the-tools-in-plain-english" class="nav-link active" data-scroll-target="#the-tools-in-plain-english">The tools, in plain English</a></li>
+  <li><a href="#what-happens-when-we-render" id="toc-what-happens-when-we-render" class="nav-link" data-scroll-target="#what-happens-when-we-render">What happens when we render?</a></li>
+  <li><a href="#problems-we-hit-and-how-we-fixed-them" id="toc-problems-we-hit-and-how-we-fixed-them" class="nav-link" data-scroll-target="#problems-we-hit-and-how-we-fixed-them">Problems we hit and how we fixed them</a></li>
+  <li><a href="#what-difference-did-makim-make" id="toc-what-difference-did-makim-make" class="nav-link" data-scroll-target="#what-difference-did-makim-make">What difference did Makim make?</a>
+  <ul class="collapse">
+  <li><a href="#makim-helps-with-repeatable-tasks" id="toc-makim-helps-with-repeatable-tasks" class="nav-link" data-scroll-target="#makim-helps-with-repeatable-tasks">Makim helps with repeatable tasks</a></li>
+  </ul></li>
+  <li><a href="#the-full-makim-file-explained-line-by-line" id="toc-the-full-makim-file-explained-line-by-line" class="nav-link" data-scroll-target="#the-full-makim-file-explained-line-by-line">The full Makim file, explained line by line</a>
+  <ul class="collapse">
+  <li><a href="#the-command-we-typed" id="toc-the-command-we-typed" class="nav-link" data-scroll-target="#the-command-we-typed">The command we typed</a></li>
+  </ul></li>
+  <li><a href="#what-makim-does-not-do" id="toc-what-makim-does-not-do" class="nav-link" data-scroll-target="#what-makim-does-not-do">What Makim does not do</a></li>
+  <li><a href="#what-comes-next" id="toc-what-comes-next" class="nav-link" data-scroll-target="#what-comes-next">What comes next?</a></li>
+  <li><a href="#the-qmd-first-setup-we-use-now" id="toc-the-qmd-first-setup-we-use-now" class="nav-link" data-scroll-target="#the-qmd-first-setup-we-use-now">The QMD-first setup we use now</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
 
-        <article class="card tool">
-          <h3>Poetry: keeps the Python list</h3>
-          <p>
-            Poetry installs Python add-ons and records their versions.
-            <code>pyproject.toml</code> describes the project;
-            <code>poetry.lock</code> records the exact versions chosen.
-          </p>
-        </article>
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Stage 1: Conda, Poetry, and Makim</h1>
+</div>
 
-        <article class="card tool">
-          <h3>Jupyter: the exercise book</h3>
-          <p>
-            A notebook mixes notes and Python code cells. We saved ours as
-            <code>notebooks/tooling-lab.ipynb</code>.
-          </p>
-        </article>
 
-        <article class="card tool">
-          <h3>Quarto: the publisher</h3>
-          <p>
-            Quarto takes the notebook and makes an HTML page from it.
-            When asked, it also runs the notebook cells through Python.
-          </p>
-        </article>
 
-        <article class="card tool">
-          <h3>Makim: the task organiser</h3>
-          <p>
-            Makim reads <code>.makim.yaml</code> and gives commands short,
-            memorable names. It starts the right tool for each task.
-          </p>
-        </article>
+<div class="quarto-title-meta">
 
-        <article class="card tool">
-          <h3>Git: the project history book</h3>
-          <p>
-            Git records the files and changes, so we can keep the working
-            Stage 1 setup as a checkpoint before trying Stage 2.
-          </p>
-        </article>
-      </div>
-    </section>
+    
+  
+    
+  </div>
+  
 
-    <section>
-      <h2>What happens when we render?</h2>
-      <p>
-        First, we name the job: <code>lab.render</code>. Makim looks up that
-        job in <code>.makim.yaml</code>, then starts the command written there.
-        Quarto uses Python and Jupyter to run the notebook cells and makes the
-        finished HTML lesson.
-      </p>
 
-      <figure class="diagram-panel">
-        <figcaption>Diagram 1: the real Stage 1 workflow</figcaption>
-        <div class="diagram-scroll" role="region" tabindex="0" aria-label="Scrollable Stage 1 workflow diagram">
-          <svg viewBox="0 0 960 600" role="img" aria-labelledby="workflow-title workflow-desc">
-            <title id="workflow-title">How Stage 1 turns a task name into an HTML lesson</title>
-            <desc id="workflow-desc">Conda supplies Python, Quarto and Jupyter. Poetry installs Makim and Python packages. The user asks for lab.render; Makim reads the task file and starts Quarto. Quarto uses Python and Jupyter to run the notebook, then writes an HTML lesson.</desc>
-            <defs>
-              <marker id="workflow-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="#147d50" />
-              </marker>
-            </defs>
-            <rect x="0" y="0" width="960" height="600" fill="#fbf8ef" />
-            <rect x="48" y="24" width="95" height="25" rx="12" fill="#e6a83b" />
-            <text x="95" y="41" text-anchor="middle" fill="#17332b" font-size="11" font-weight="700" letter-spacing="1">STAGE 1</text>
-            <text x="48" y="78" fill="#17332b" font-size="26" font-weight="700">From a short task name to a web page</text>
-            <text x="48" y="103" fill="#52675f" font-size="15">Each tool has one job. The arrows show how the work moves.</text>
+</header>
 
-            <rect x="48" y="126" width="864" height="92" rx="16" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
-            <text x="72" y="151" fill="#52675f" font-size="11" font-weight="700" letter-spacing="1.4">THE WORKSPACE TOOLS</text>
-            <line x1="480" y1="160" x2="480" y2="202" stroke="#d9e4d9" stroke-width="1.5" />
-            <text x="72" y="179" fill="#17332b" font-size="16" font-weight="700">Conda</text>
-            <text x="72" y="201" fill="#52675f" font-size="13">Provides Python 3.12, Quarto and Jupyter</text>
-            <text x="516" y="179" fill="#17332b" font-size="16" font-weight="700">Poetry</text>
-            <text x="516" y="201" fill="#52675f" font-size="13">Installs Makim and the Python packages</text>
 
-            <text x="48" y="250" fill="#52675f" font-size="12" font-weight="700" letter-spacing="1.2">THE JOB RUNS IN THIS ORDER</text>
-
-            <path d="M 190 414 H 218" fill="none" stroke="#147d50" stroke-width="2.5" marker-end="url(#workflow-arrow)" />
-            <path d="M 378 414 H 402" fill="none" stroke="#147d50" stroke-width="2.5" marker-end="url(#workflow-arrow)" />
-            <path d="M 562 414 H 586" fill="none" stroke="#147d50" stroke-width="2.5" marker-end="url(#workflow-arrow)" />
-            <path d="M 746 414 H 770" fill="none" stroke="#147d50" stroke-width="2.5" marker-end="url(#workflow-arrow)" />
-            <path d="M 298 300 V 340" fill="none" stroke="#147d50" stroke-width="2" marker-end="url(#workflow-arrow)" />
-
-            <rect x="218" y="264" width="160" height="36" rx="9" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
-            <text x="298" y="279" text-anchor="middle" fill="#52675f" font-size="10" font-weight="700" letter-spacing="1">TASK LIST</text>
-            <text x="298" y="294" text-anchor="middle" fill="#17332b" font-size="12" font-weight="600">.makim.yaml</text>
-
-            <rect x="48" y="340" width="142" height="148" rx="14" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
-            <text x="119" y="369" text-anchor="middle" fill="#52675f" font-size="10" font-weight="700" letter-spacing="1">1 · REQUEST</text>
-            <text x="119" y="405" text-anchor="middle" fill="#17332b" font-size="17" font-weight="700">You ask</text>
-            <text x="119" y="435" text-anchor="middle" fill="#147d50" font-size="13" font-family="ui-monospace, monospace">lab.render</text>
-            <text x="119" y="464" text-anchor="middle" fill="#52675f" font-size="12">the task name</text>
-
-            <rect x="218" y="340" width="160" height="148" rx="14" fill="#edf5ee" stroke="#147d50" stroke-width="2.5" />
-            <text x="298" y="369" text-anchor="middle" fill="#147d50" font-size="10" font-weight="700" letter-spacing="1">2 · DISPATCH</text>
-            <text x="298" y="405" text-anchor="middle" fill="#17332b" font-size="18" font-weight="700">Makim</text>
-            <text x="298" y="435" text-anchor="middle" fill="#52675f" font-size="12">Finds the task in</text>
-            <text x="298" y="456" text-anchor="middle" fill="#52675f" font-size="12">the task list above</text>
-
-            <rect x="402" y="340" width="160" height="148" rx="14" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
-            <text x="482" y="369" text-anchor="middle" fill="#52675f" font-size="10" font-weight="700" letter-spacing="1">3 · RENDER</text>
-            <text x="482" y="405" text-anchor="middle" fill="#17332b" font-size="18" font-weight="700">Quarto</text>
-            <text x="482" y="435" text-anchor="middle" fill="#52675f" font-size="12">Starts the saved</text>
-            <text x="482" y="456" text-anchor="middle" fill="#52675f" font-size="12">render command</text>
-
-            <rect x="586" y="340" width="160" height="148" rx="14" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
-            <text x="666" y="369" text-anchor="middle" fill="#52675f" font-size="10" font-weight="700" letter-spacing="1">4 · EXECUTE</text>
-            <text x="666" y="401" text-anchor="middle" fill="#17332b" font-size="15" font-weight="700">Python + Jupyter</text>
-            <text x="666" y="432" text-anchor="middle" fill="#52675f" font-size="12">Run the notebook's</text>
-            <text x="666" y="453" text-anchor="middle" fill="#52675f" font-size="12">code cells</text>
-
-            <rect x="770" y="340" width="142" height="148" rx="14" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
-            <text x="841" y="369" text-anchor="middle" fill="#52675f" font-size="10" font-weight="700" letter-spacing="1">5 · RESULT</text>
-            <text x="841" y="405" text-anchor="middle" fill="#17332b" font-size="17" font-weight="700">HTML lesson</text>
-            <text x="841" y="435" text-anchor="middle" fill="#52675f" font-size="12">tooling-lab.html</text>
-            <text x="841" y="464" text-anchor="middle" fill="#52675f" font-size="12">opens in a browser</text>
-
-            <line x1="48" y1="526" x2="912" y2="526" stroke="#d9e4d9" stroke-width="1" />
-            <text x="48" y="557" fill="#17332b" font-size="14" font-weight="600">Makim remembers the route; Quarto, Python and Jupyter do the work.</text>
-          </svg>
-        </div>
-        <p class="diagram-caption">On a phone, swipe inside the diagram to follow the full chain.</p>
-      </figure>
-
-      <figure class="diagram-panel">
-        <figcaption>Diagram 2: the Lagos motor-park version</figcaption>
-        <div class="diagram-scroll" role="region" tabindex="0" aria-label="Scrollable Nigerian motor park analogy diagram">
-          <svg viewBox="0 0 960 600" role="img" aria-labelledby="park-title park-desc">
-            <title id="park-title">Makim explained as a Lagos motor park journey</title>
-            <desc id="park-desc">You call out the trip name. Makim is the motor-park marshal who checks the route board, .makim.yaml. Quarto is like the danfo driver. The notebook is the passenger, and the Python and Jupyter kernel is the engine that runs its code. The destination is the HTML lesson.</desc>
-            <defs>
-              <marker id="park-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="#147d50" />
-              </marker>
-            </defs>
-            <rect x="0" y="0" width="960" height="600" fill="#fbf8ef" />
-            <rect x="48" y="24" width="110" height="25" rx="12" fill="#e6a83b" />
-            <text x="103" y="41" text-anchor="middle" fill="#17332b" font-size="11" font-weight="700" letter-spacing="1">NIGERIAN LENS</text>
-            <text x="48" y="78" fill="#17332b" font-size="26" font-weight="700">Think of a busy Lagos motor park</text>
-            <text x="48" y="104" fill="#52675f" font-size="15">The tools have different jobs, just like the people and parts of a journey.</text>
-
-            <path d="M 222 317 H 270" fill="none" stroke="#147d50" stroke-width="2.5" marker-end="url(#park-arrow)" />
-            <path d="M 442 317 H 490" fill="none" stroke="#147d50" stroke-width="2.5" marker-end="url(#park-arrow)" />
-            <path d="M 662 317 H 710" fill="none" stroke="#147d50" stroke-width="2.5" marker-end="url(#park-arrow)" />
-
-            <rect x="48" y="218" width="174" height="198" rx="16" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
-            <circle cx="76" cy="246" r="15" fill="#e6a83b" />
-            <text x="76" y="251" text-anchor="middle" fill="#17332b" font-size="13" font-weight="700">1</text>
-            <text x="135" y="252" text-anchor="middle" fill="#52675f" font-size="10" font-weight="700" letter-spacing="1">THE TRAVELLER</text>
-            <text x="135" y="293" text-anchor="middle" fill="#17332b" font-size="18" font-weight="700">You</text>
-            <text x="135" y="327" text-anchor="middle" fill="#52675f" font-size="13">Call out the trip:</text>
-            <text x="135" y="353" text-anchor="middle" fill="#147d50" font-size="13" font-family="ui-monospace, monospace">lab.render</text>
-            <text x="135" y="386" text-anchor="middle" fill="#52675f" font-size="12">the task you need</text>
-
-            <rect x="270" y="218" width="172" height="198" rx="16" fill="#edf5ee" stroke="#147d50" stroke-width="2.5" />
-            <circle cx="298" cy="246" r="15" fill="#147d50" />
-            <text x="298" y="251" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700">2</text>
-            <text x="356" y="252" text-anchor="middle" fill="#147d50" font-size="10" font-weight="700" letter-spacing="1">PARK MARSHAL</text>
-            <text x="356" y="293" text-anchor="middle" fill="#17332b" font-size="18" font-weight="700">Makim</text>
-            <text x="356" y="327" text-anchor="middle" fill="#52675f" font-size="12">Checks the route board</text>
-            <text x="356" y="351" text-anchor="middle" fill="#52675f" font-size="12">and points to the right job</text>
-            <text x="356" y="386" text-anchor="middle" fill="#17332b" font-size="12" font-weight="600">.makim.yaml</text>
-
-            <rect x="490" y="218" width="172" height="198" rx="16" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
-            <circle cx="518" cy="246" r="15" fill="#e6a83b" />
-            <text x="518" y="251" text-anchor="middle" fill="#17332b" font-size="13" font-weight="700">3</text>
-            <text x="576" y="252" text-anchor="middle" fill="#52675f" font-size="10" font-weight="700" letter-spacing="1">DANFO + ENGINE</text>
-            <text x="576" y="293" text-anchor="middle" fill="#17332b" font-size="18" font-weight="700">Quarto drives</text>
-            <text x="576" y="327" text-anchor="middle" fill="#52675f" font-size="12">Python + Jupyter run</text>
-            <text x="576" y="350" text-anchor="middle" fill="#52675f" font-size="12">the notebook passenger's</text>
-            <text x="576" y="373" text-anchor="middle" fill="#52675f" font-size="12">code cells</text>
-
-            <rect x="710" y="218" width="202" height="198" rx="16" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
-            <circle cx="738" cy="246" r="15" fill="#e6a83b" />
-            <text x="738" y="251" text-anchor="middle" fill="#17332b" font-size="13" font-weight="700">4</text>
-            <text x="811" y="252" text-anchor="middle" fill="#52675f" font-size="10" font-weight="700" letter-spacing="1">THE DESTINATION</text>
-            <text x="811" y="293" text-anchor="middle" fill="#17332b" font-size="18" font-weight="700">HTML lesson</text>
-            <text x="811" y="327" text-anchor="middle" fill="#52675f" font-size="12">The web page arrives</text>
-            <text x="811" y="351" text-anchor="middle" fill="#52675f" font-size="12">ready to open in a browser</text>
-            <text x="811" y="386" text-anchor="middle" fill="#147d50" font-size="12" font-family="ui-monospace, monospace">tooling-lab.html</text>
-
-            <rect x="48" y="455" width="864" height="82" rx="14" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
-            <text x="72" y="483" fill="#52675f" font-size="10" font-weight="700" letter-spacing="1">THE JOURNEY IN ONE LINE</text>
-            <text x="72" y="512" fill="#17332b" font-size="14"><tspan font-weight="700">Route board:</tspan> .makim.yaml</text>
-            <text x="360" y="512" fill="#17332b" font-size="14"><tspan font-weight="700">Passenger:</tspan> tooling-lab.ipynb</text>
-            <text x="690" y="512" fill="#17332b" font-size="14"><tspan font-weight="700">Destination:</tspan> HTML</text>
-          </svg>
-        </div>
-        <p class="diagram-caption">On a phone, swipe inside the diagram to travel from the task name to the finished lesson.</p>
-      </figure>
-
-      <p class="market-note">
-        One more Nigerian picture: Conda sets up the market stall with the main
-        tools, and Poetry keeps the written list of Python add-ons and versions.
-        Makim is the park marshal; it sends the job to Quarto, but it does not
-        drive the danfo or run the notebook code itself.
-      </p>
-
-      <p>The full command saved in Makim is:</p>
-      <pre><code>quarto render notebooks/tooling-lab.ipynb --to html --execute</code></pre>
-
-      <p>
-        We type a task name instead of remembering that whole command. The
-        <code>--execute</code> part tells Quarto to run the notebook cells while
-        rendering. Without it, Quarto expects the notebook to have already been
-        run and saved.
-      </p>
-    </section>
-    <section>
-      <h2>Problems we hit and how we fixed them</h2>
-      <p>
-        We built the setup one step at a time. These problems helped us learn
-        which tool was responsible and what it needed.
-      </p>
-      <ol class="error-list">
-        <li>
-          <strong>The folder was empty and was not a Git repo.</strong>
-          Git could not show a branch or remote yet. We cloned the GitHub repo
-          into the folder, then created the Stage 1 branch.
-        </li>
-        <li>
-          <strong>Conda was not found after installation.</strong>
-          We chose not to let the installer edit the shell profile. We loaded
-          Conda's shell hook in the current terminal; a new terminal needs the
-          hook again unless we choose to initialize the shell later.
-        </li>
-        <li>
-          <strong>Poetry saw Python 3.13 instead of the required 3.12.</strong>
-          The old <code>VIRTUAL_ENV</code> setting pointed at another virtual
-          environment. We used <code>env -u VIRTUAL_ENV</code> for the Poetry
-          command so it could use the Conda Python 3.12 environment.
-        </li>
-        <li>
-          <strong>There were no project setup files to start from.</strong>
-          We wrote <code>environment.yml</code>, <code>pyproject.toml</code>
-          and <code>.makim.yaml</code> ourselves in Neovim. That made each
-          file's purpose visible instead of hiding it behind a setup wizard.
-        </li>
-        <li>
-          <strong>Poetry refreshed packages already in the Conda environment.</strong>
-          The install showed many package updates. It completed successfully,
-          but it also showed that Poetry and Conda were working in the same
-          environment during this experiment.
-        </li>
-        <li>
-          <strong>Makim first stopped with “No module named click”.</strong>
-          Makim needed the Python package <code>click</code>, but it was missing
-          from the project's install. We added it to <code>pyproject.toml</code>,
-          refreshed the lock file, and installed again.
-        </li>
-        <li>
-          <strong>Makim first said its config file was missing.</strong>
-          It looks for <code>.makim.yaml</code> by default. We created that file
-          and added the <code>lab.hello</code> and <code>lab.render</code> tasks.
-        </li>
-        <li>
-          <strong>YAML treated punctuation in a command as special syntax.</strong>
-          We quoted the full <code>echo</code> command in the YAML file so its
-          colon was read as part of the text.
-        </li>
-        <li>
-          <strong><code>quarto update</code> asked us for an extension.</strong>
-          That command is for updating a Quarto extension, not a general
-          software updater. We used Quarto's version and render commands for
-          this lab instead.
-        </li>
-        <li>
-          <strong>Our first search did not find the notebook's greeting.</strong>
-          The code had not yet been saved in the notebook file. We saved the
-          notebook and checked <code>tooling-lab.ipynb</code> again.
-        </li>
-        <li>
-          <strong>The first HTML page did not show fresh cell output.</strong>
-          Quarto had not been told to execute the notebook. Adding
-          <code>--execute</code> made it run the cells before writing HTML.
-        </li>
-        <li>
-          <strong>Generated files appeared as untracked Git files.</strong>
-          Jupyter checkpoints and Quarto's HTML and supporting files are build
-          output. We added ignore rules so they do not clutter normal Git status.
-        </li>
-        <li>
-          <strong>Xonsh printed a deprecation warning.</strong>
-          Makim selected Xonsh as its shell and one old setting was deprecated.
-          The warning did not stop either task; both Makim commands completed.
-        </li>
-      </ol>
-    </section>
-
-    <section>
-      <h2>What difference did Makim make?</h2>
-      <p>
-        Without Makim, we would type the long Quarto command ourselves.
-        With Makim, the command has a name: <code>lab.render</code>.
-        The task is written down once, so we can run it again later or
-        share it with another learner.
-      </p>
-
-      <h3>Makim helps with repeatable tasks</h3>
-      <ul>
-        <li>Run the notebook or build course pages.</li>
-        <li>Run checks and tests before sharing changes.</li>
-        <li>Format or check code with tools such as Ruff.</li>
-        <li>Preview lessons or documentation on a laptop.</li>
-        <li>Clean generated files when we want a fresh build.</li>
-      </ul>
-
-      <p>
-        Those are ideas for future tasks. In Stage 1, we made
-        <code>lab.hello</code> and <code>lab.render</code>.
-      </p>
-    </section>
-
-    <section>
-      <h2>The full Makim file, explained line by line</h2>
-      <p>
-        This is the whole <code>.makim.yaml</code> file we made. It gives
-        two commands short names.
-      </p>
-      <pre><code>groups:
+<p><a href="notebooks/tooling-lab.ipynb">Download the notebook</a></p>
+<p><a href="https://colab.research.google.com/github/theAfricanQuant/freecampus-tooling-sandbox/blob/stage-1/qmd-first/notebooks/tooling-lab.ipynb">Open the notebook in Google Colab</a></p>
+<div>
+<p>FreeCampus Tooling Lab · Stage 1</p>
+<section id="from-a-notebook-to-a-web-page" class="level1">
+<h1>From a notebook to a web page</h1>
+<p>We set up a small Python learning project. We wrote a notebook, ran its code, and turned it into an HTML page that opens in a browser.</p>
+</section>
+</div>
+<p><a href="https://colab.research.google.com/github/theAfricanQuant/freecampus-tooling-sandbox/blob/stage-1/qmd-first/notebooks/tooling-lab.ipynb" class="colab-link" target="_blank" rel="noopener">Open the Stage 1 notebook in Colab ↗</a></p>
+<p>The Stage 1 notebook is now on GitHub. Use this link to open it in Colab; the rendered HTML page is a separate file.</p>
+<section id="the-tools-in-plain-english" class="level2">
+<h2 class="anchored" data-anchor-id="the-tools-in-plain-english">The tools, in plain English</h2>
+<div class="tool-grid">
+<section id="conda-sets-up-the-workspace" class="level3">
+<h3 class="anchored" data-anchor-id="conda-sets-up-the-workspace">Conda: sets up the workspace</h3>
+<p>Think of Conda as setting up a classroom before a lesson. It gives us Python and larger tools such as Quarto and Jupyter. The shopping list is <code>environment.yml</code>.</p>
+</section>
+<section id="poetry-keeps-the-python-list" class="level3">
+<h3 class="anchored" data-anchor-id="poetry-keeps-the-python-list">Poetry: keeps the Python list</h3>
+<p>Poetry installs Python add-ons and records their versions. <code>pyproject.toml</code> describes the project; <code>poetry.lock</code> records the exact versions chosen.</p>
+</section>
+<section id="jupyter-the-exercise-book" class="level3">
+<h3 class="anchored" data-anchor-id="jupyter-the-exercise-book">Jupyter: the exercise book</h3>
+<p>A notebook mixes notes and Python code cells. We saved ours as <code>notebooks/tooling-lab.ipynb</code>.</p>
+</section>
+<section id="quarto-the-publisher" class="level3">
+<h3 class="anchored" data-anchor-id="quarto-the-publisher">Quarto: the publisher</h3>
+<p>Quarto takes the notebook and makes an HTML page from it. When asked, it also runs the notebook cells through Python.</p>
+</section>
+<section id="makim-the-task-organiser" class="level3">
+<h3 class="anchored" data-anchor-id="makim-the-task-organiser">Makim: the task organiser</h3>
+<p>Makim reads <code>.makim.yaml</code> and gives commands short, memorable names. It starts the right tool for each task.</p>
+</section>
+<section id="git-the-project-history-book" class="level3">
+<h3 class="anchored" data-anchor-id="git-the-project-history-book">Git: the project history book</h3>
+<p>Git records the files and changes, so we can keep the working Stage 1 setup as a checkpoint before trying Stage 2.</p>
+</section>
+</div>
+</section>
+<section id="what-happens-when-we-render" class="level2">
+<h2 class="anchored" data-anchor-id="what-happens-when-we-render">What happens when we render?</h2>
+<p>First, we name the job: <code>lab.render</code>. Makim looks up that job in <code>.makim.yaml</code>, then starts the command written there. Quarto uses Python and Jupyter to run the notebook cells and makes the finished HTML lesson.</p>
+<figure class="diagram-panel figure">
+<div class="diagram-scroll" role="region" tabindex="0" aria-label="Scrollable Stage 1 workflow diagram">
+<p><img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Ym94PSIwIDAgOTYwIDYwMCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsbGVkYnk9IndvcmtmbG93LXRpdGxlIHdvcmtmbG93LWRlc2MiPgogICAgICAgICAgICA8dGl0bGUgaWQ9IndvcmtmbG93LXRpdGxlIj5Ib3cgU3RhZ2UgMSB0dXJucyBhIHRhc2sgbmFtZSBpbnRvIGFuIEhUTUwgbGVzc29uPC90aXRsZT4KICAgICAgICAgICAgPGRlc2MgaWQ9IndvcmtmbG93LWRlc2MiPkNvbmRhIHN1cHBsaWVzIFB5dGhvbiwgUXVhcnRvIGFuZCBKdXB5dGVyLiBQb2V0cnkgaW5zdGFsbHMgTWFraW0gYW5kIFB5dGhvbiBwYWNrYWdlcy4gVGhlIHVzZXIgYXNrcyBmb3IgbGFiLnJlbmRlcjsgTWFraW0gcmVhZHMgdGhlIHRhc2sgZmlsZSBhbmQgc3RhcnRzIFF1YXJ0by4gUXVhcnRvIHVzZXMgUHl0aG9uIGFuZCBKdXB5dGVyIHRvIHJ1biB0aGUgbm90ZWJvb2ssIHRoZW4gd3JpdGVzIGFuIEhUTUwgbGVzc29uLjwvZGVzYz4KICAgICAgICAgICAgPGRlZnM+CiAgICAgICAgICAgICAgPG1hcmtlciBpZD0id29ya2Zsb3ctYXJyb3ciIG1hcmtlcndpZHRoPSIxMCIgbWFya2VyaGVpZ2h0PSIxMCIgcmVmeD0iOCIgcmVmeT0iNSIgb3JpZW50PSJhdXRvIiBtYXJrZXJ1bml0cz0ic3Ryb2tlV2lkdGgiPgogICAgICAgICAgICAgICAgPHBhdGggZD0iTSAwIDAgTCAxMCA1IEwgMCAxMCB6IiBmaWxsPSIjMTQ3ZDUwIiAvPgogICAgICAgICAgICAgIDwvbWFya2VyPgogICAgICAgICAgICA8L2RlZnM+CiAgICAgICAgICAgIDxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSI5NjAiIGhlaWdodD0iNjAwIiBmaWxsPSIjZmJmOGVmIiAvPgogICAgICAgICAgICA8cmVjdCB4PSI0OCIgeT0iMjQiIHdpZHRoPSI5NSIgaGVpZ2h0PSIyNSIgcng9IjEyIiBmaWxsPSIjZTZhODNiIiAvPgogICAgICAgICAgICA8dGV4dCB4PSI5NSIgeT0iNDEiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMxNzMzMmIiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtd2VpZ2h0PSI3MDAiIGxldHRlci1zcGFjaW5nPSIxIj5TVEFHRSAxPC90ZXh0PgogICAgICAgICAgICA8dGV4dCB4PSI0OCIgeT0iNzgiIGZpbGw9IiMxNzMzMmIiIGZvbnQtc2l6ZT0iMjYiIGZvbnQtd2VpZ2h0PSI3MDAiPkZyb20gYSBzaG9ydCB0YXNrIG5hbWUgdG8gYSB3ZWIgcGFnZTwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iNDgiIHk9IjEwMyIgZmlsbD0iIzUyNjc1ZiIgZm9udC1zaXplPSIxNSI+RWFjaCB0b29sIGhhcyBvbmUgam9iLiBUaGUgYXJyb3dzIHNob3cgaG93IHRoZSB3b3JrIG1vdmVzLjwvdGV4dD4KCiAgICAgICAgICAgIDxyZWN0IHg9IjQ4IiB5PSIxMjYiIHdpZHRoPSI4NjQiIGhlaWdodD0iOTIiIHJ4PSIxNiIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjZDllNGQ5IiBzdHJva2Utd2lkdGg9IjEuNSIgLz4KICAgICAgICAgICAgPHRleHQgeD0iNzIiIHk9IjE1MSIgZmlsbD0iIzUyNjc1ZiIgZm9udC1zaXplPSIxMSIgZm9udC13ZWlnaHQ9IjcwMCIgbGV0dGVyLXNwYWNpbmc9IjEuNCI+VEhFIFdPUktTUEFDRSBUT09MUzwvdGV4dD4KICAgICAgICAgICAgPGxpbmUgeDE9IjQ4MCIgeTE9IjE2MCIgeDI9IjQ4MCIgeTI9IjIwMiIgc3Ryb2tlPSIjZDllNGQ5IiBzdHJva2Utd2lkdGg9IjEuNSI+PC9saW5lPgogICAgICAgICAgICA8dGV4dCB4PSI3MiIgeT0iMTc5IiBmaWxsPSIjMTczMzJiIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iNzAwIj5Db25kYTwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iNzIiIHk9IjIwMSIgZmlsbD0iIzUyNjc1ZiIgZm9udC1zaXplPSIxMyI+UHJvdmlkZXMgUHl0aG9uIDMuMTIsIFF1YXJ0byBhbmQgSnVweXRlcjwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iNTE2IiB5PSIxNzkiIGZpbGw9IiMxNzMzMmIiIGZvbnQtc2l6ZT0iMTYiIGZvbnQtd2VpZ2h0PSI3MDAiPlBvZXRyeTwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iNTE2IiB5PSIyMDEiIGZpbGw9IiM1MjY3NWYiIGZvbnQtc2l6ZT0iMTMiPkluc3RhbGxzIE1ha2ltIGFuZCB0aGUgUHl0aG9uIHBhY2thZ2VzPC90ZXh0PgoKICAgICAgICAgICAgPHRleHQgeD0iNDgiIHk9IjI1MCIgZmlsbD0iIzUyNjc1ZiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9IjcwMCIgbGV0dGVyLXNwYWNpbmc9IjEuMiI+VEhFIEpPQiBSVU5TIElOIFRISVMgT1JERVI8L3RleHQ+CgogICAgICAgICAgICA8cGF0aCBkPSJNIDE5MCA0MTQgSCAyMTgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzE0N2Q1MCIgc3Ryb2tlLXdpZHRoPSIyLjUiIG1hcmtlci1lbmQ9InVybCgjd29ya2Zsb3ctYXJyb3cpIiAvPgogICAgICAgICAgICA8cGF0aCBkPSJNIDM3OCA0MTQgSCA0MDIiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzE0N2Q1MCIgc3Ryb2tlLXdpZHRoPSIyLjUiIG1hcmtlci1lbmQ9InVybCgjd29ya2Zsb3ctYXJyb3cpIiAvPgogICAgICAgICAgICA8cGF0aCBkPSJNIDU2MiA0MTQgSCA1ODYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzE0N2Q1MCIgc3Ryb2tlLXdpZHRoPSIyLjUiIG1hcmtlci1lbmQ9InVybCgjd29ya2Zsb3ctYXJyb3cpIiAvPgogICAgICAgICAgICA8cGF0aCBkPSJNIDc0NiA0MTQgSCA3NzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzE0N2Q1MCIgc3Ryb2tlLXdpZHRoPSIyLjUiIG1hcmtlci1lbmQ9InVybCgjd29ya2Zsb3ctYXJyb3cpIiAvPgogICAgICAgICAgICA8cGF0aCBkPSJNIDI5OCAzMDAgViAzNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzE0N2Q1MCIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI3dvcmtmbG93LWFycm93KSIgLz4KCiAgICAgICAgICAgIDxyZWN0IHg9IjIxOCIgeT0iMjY0IiB3aWR0aD0iMTYwIiBoZWlnaHQ9IjM2IiByeD0iOSIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjZDllNGQ5IiBzdHJva2Utd2lkdGg9IjEuNSIgLz4KICAgICAgICAgICAgPHRleHQgeD0iMjk4IiB5PSIyNzkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM1MjY3NWYiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSI3MDAiIGxldHRlci1zcGFjaW5nPSIxIj5UQVNLIExJU1Q8L3RleHQ+CiAgICAgICAgICAgIDx0ZXh0IHg9IjI5OCIgeT0iMjk0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMTczMzJiIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iNjAwIj4ubWFraW0ueWFtbDwvdGV4dD4KCiAgICAgICAgICAgIDxyZWN0IHg9IjQ4IiB5PSIzNDAiIHdpZHRoPSIxNDIiIGhlaWdodD0iMTQ4IiByeD0iMTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iI2Q5ZTRkOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIC8+CiAgICAgICAgICAgIDx0ZXh0IHg9IjExOSIgeT0iMzY5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNTI2NzVmIiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iNzAwIiBsZXR0ZXItc3BhY2luZz0iMSI+MSDCtyBSRVFVRVNUPC90ZXh0PgogICAgICAgICAgICA8dGV4dCB4PSIxMTkiIHk9IjQwNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzE3MzMyYiIgZm9udC1zaXplPSIxNyIgZm9udC13ZWlnaHQ9IjcwMCI+WW91IGFzazwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iMTE5IiB5PSI0MzUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMxNDdkNTAiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtZmFtaWx5PSJ1aS1tb25vc3BhY2UsIG1vbm9zcGFjZSI+bGFiLnJlbmRlcjwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iMTE5IiB5PSI0NjQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM1MjY3NWYiIGZvbnQtc2l6ZT0iMTIiPnRoZSB0YXNrIG5hbWU8L3RleHQ+CgogICAgICAgICAgICA8cmVjdCB4PSIyMTgiIHk9IjM0MCIgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNDgiIHJ4PSIxNCIgZmlsbD0iI2VkZjVlZSIgc3Ryb2tlPSIjMTQ3ZDUwIiBzdHJva2Utd2lkdGg9IjIuNSIgLz4KICAgICAgICAgICAgPHRleHQgeD0iMjk4IiB5PSIzNjkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMxNDdkNTAiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSI3MDAiIGxldHRlci1zcGFjaW5nPSIxIj4yIMK3IERJU1BBVENIPC90ZXh0PgogICAgICAgICAgICA8dGV4dCB4PSIyOTgiIHk9IjQwNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzE3MzMyYiIgZm9udC1zaXplPSIxOCIgZm9udC13ZWlnaHQ9IjcwMCI+TWFraW08L3RleHQ+CiAgICAgICAgICAgIDx0ZXh0IHg9IjI5OCIgeT0iNDM1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNTI2NzVmIiBmb250LXNpemU9IjEyIj5GaW5kcyB0aGUgdGFzayBpbjwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iMjk4IiB5PSI0NTYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM1MjY3NWYiIGZvbnQtc2l6ZT0iMTIiPnRoZSB0YXNrIGxpc3QgYWJvdmU8L3RleHQ+CgogICAgICAgICAgICA8cmVjdCB4PSI0MDIiIHk9IjM0MCIgd2lkdGg9IjE2MCIgaGVpZ2h0PSIxNDgiIHJ4PSIxNCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjZDllNGQ5IiBzdHJva2Utd2lkdGg9IjEuNSIgLz4KICAgICAgICAgICAgPHRleHQgeD0iNDgyIiB5PSIzNjkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM1MjY3NWYiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSI3MDAiIGxldHRlci1zcGFjaW5nPSIxIj4zIMK3IFJFTkRFUjwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iNDgyIiB5PSI0MDUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMxNzMzMmIiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtd2VpZ2h0PSI3MDAiPlF1YXJ0bzwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iNDgyIiB5PSI0MzUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM1MjY3NWYiIGZvbnQtc2l6ZT0iMTIiPlN0YXJ0cyB0aGUgc2F2ZWQ8L3RleHQ+CiAgICAgICAgICAgIDx0ZXh0IHg9IjQ4MiIgeT0iNDU2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNTI2NzVmIiBmb250LXNpemU9IjEyIj5yZW5kZXIgY29tbWFuZDwvdGV4dD4KCiAgICAgICAgICAgIDxyZWN0IHg9IjU4NiIgeT0iMzQwIiB3aWR0aD0iMTYwIiBoZWlnaHQ9IjE0OCIgcng9IjE0IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiNkOWU0ZDkiIHN0cm9rZS13aWR0aD0iMS41IiAvPgogICAgICAgICAgICA8dGV4dCB4PSI2NjYiIHk9IjM2OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzUyNjc1ZiIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9IjcwMCIgbGV0dGVyLXNwYWNpbmc9IjEiPjQgwrcgRVhFQ1VURTwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iNjY2IiB5PSI0MDEiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMxNzMzMmIiIGZvbnQtc2l6ZT0iMTUiIGZvbnQtd2VpZ2h0PSI3MDAiPlB5dGhvbiArIEp1cHl0ZXI8L3RleHQ+CiAgICAgICAgICAgIDx0ZXh0IHg9IjY2NiIgeT0iNDMyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNTI2NzVmIiBmb250LXNpemU9IjEyIj5SdW4gdGhlIG5vdGVib29rJiMzOTtzPC90ZXh0PgogICAgICAgICAgICA8dGV4dCB4PSI2NjYiIHk9IjQ1MyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzUyNjc1ZiIgZm9udC1zaXplPSIxMiI+Y29kZSBjZWxsczwvdGV4dD4KCiAgICAgICAgICAgIDxyZWN0IHg9Ijc3MCIgeT0iMzQwIiB3aWR0aD0iMTQyIiBoZWlnaHQ9IjE0OCIgcng9IjE0IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiNkOWU0ZDkiIHN0cm9rZS13aWR0aD0iMS41IiAvPgogICAgICAgICAgICA8dGV4dCB4PSI4NDEiIHk9IjM2OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzUyNjc1ZiIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9IjcwMCIgbGV0dGVyLXNwYWNpbmc9IjEiPjUgwrcgUkVTVUxUPC90ZXh0PgogICAgICAgICAgICA8dGV4dCB4PSI4NDEiIHk9IjQwNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzE3MzMyYiIgZm9udC1zaXplPSIxNyIgZm9udC13ZWlnaHQ9IjcwMCI+SFRNTCBsZXNzb248L3RleHQ+CiAgICAgICAgICAgIDx0ZXh0IHg9Ijg0MSIgeT0iNDM1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNTI2NzVmIiBmb250LXNpemU9IjEyIj50b29saW5nLWxhYi5odG1sPC90ZXh0PgogICAgICAgICAgICA8dGV4dCB4PSI4NDEiIHk9IjQ2NCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzUyNjc1ZiIgZm9udC1zaXplPSIxMiI+b3BlbnMgaW4gYSBicm93c2VyPC90ZXh0PgoKICAgICAgICAgICAgPGxpbmUgeDE9IjQ4IiB5MT0iNTI2IiB4Mj0iOTEyIiB5Mj0iNTI2IiBzdHJva2U9IiNkOWU0ZDkiIHN0cm9rZS13aWR0aD0iMSI+PC9saW5lPgogICAgICAgICAgICA8dGV4dCB4PSI0OCIgeT0iNTU3IiBmaWxsPSIjMTczMzJiIiBmb250LXNpemU9IjE0IiBmb250LXdlaWdodD0iNjAwIj5NYWtpbSByZW1lbWJlcnMgdGhlIHJvdXRlOyBRdWFydG8sIFB5dGhvbiBhbmQgSnVweXRlciBkbyB0aGUgd29yay48L3RleHQ+CiAgICAgICAgICA8L3N2Zz4=" class="figure-img"></p>
+</div>
+<p>
+On a phone, swipe inside the diagram to follow the full chain.
+</p>
+<figcaption>
+Diagram 1: the real Stage 1 workflow
+</figcaption>
+</figure>
+<figure class="diagram-panel figure">
+<div class="diagram-scroll" role="region" tabindex="0" aria-label="Scrollable Nigerian motor park analogy diagram">
+<p><img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Ym94PSIwIDAgOTYwIDYwMCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsbGVkYnk9InBhcmstdGl0bGUgcGFyay1kZXNjIj4KICAgICAgICAgICAgPHRpdGxlIGlkPSJwYXJrLXRpdGxlIj5NYWtpbSBleHBsYWluZWQgYXMgYSBMYWdvcyBtb3RvciBwYXJrIGpvdXJuZXk8L3RpdGxlPgogICAgICAgICAgICA8ZGVzYyBpZD0icGFyay1kZXNjIj5Zb3UgY2FsbCBvdXQgdGhlIHRyaXAgbmFtZS4gTWFraW0gaXMgdGhlIG1vdG9yLXBhcmsgbWFyc2hhbCB3aG8gY2hlY2tzIHRoZSByb3V0ZSBib2FyZCwgLm1ha2ltLnlhbWwuIFF1YXJ0byBpcyBsaWtlIHRoZSBkYW5mbyBkcml2ZXIuIFRoZSBub3RlYm9vayBpcyB0aGUgcGFzc2VuZ2VyLCBhbmQgdGhlIFB5dGhvbiBhbmQgSnVweXRlciBrZXJuZWwgaXMgdGhlIGVuZ2luZSB0aGF0IHJ1bnMgaXRzIGNvZGUuIFRoZSBkZXN0aW5hdGlvbiBpcyB0aGUgSFRNTCBsZXNzb24uPC9kZXNjPgogICAgICAgICAgICA8ZGVmcz4KICAgICAgICAgICAgICA8bWFya2VyIGlkPSJwYXJrLWFycm93IiBtYXJrZXJ3aWR0aD0iMTAiIG1hcmtlcmhlaWdodD0iMTAiIHJlZng9IjgiIHJlZnk9IjUiIG9yaWVudD0iYXV0byIgbWFya2VydW5pdHM9InN0cm9rZVdpZHRoIj4KICAgICAgICAgICAgICAgIDxwYXRoIGQ9Ik0gMCAwIEwgMTAgNSBMIDAgMTAgeiIgZmlsbD0iIzE0N2Q1MCIgLz4KICAgICAgICAgICAgICA8L21hcmtlcj4KICAgICAgICAgICAgPC9kZWZzPgogICAgICAgICAgICA8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iOTYwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2ZiZjhlZiIgLz4KICAgICAgICAgICAgPHJlY3QgeD0iNDgiIHk9IjI0IiB3aWR0aD0iMTEwIiBoZWlnaHQ9IjI1IiByeD0iMTIiIGZpbGw9IiNlNmE4M2IiIC8+CiAgICAgICAgICAgIDx0ZXh0IHg9IjEwMyIgeT0iNDEiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMxNzMzMmIiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtd2VpZ2h0PSI3MDAiIGxldHRlci1zcGFjaW5nPSIxIj5OSUdFUklBTiBMRU5TPC90ZXh0PgogICAgICAgICAgICA8dGV4dCB4PSI0OCIgeT0iNzgiIGZpbGw9IiMxNzMzMmIiIGZvbnQtc2l6ZT0iMjYiIGZvbnQtd2VpZ2h0PSI3MDAiPlRoaW5rIG9mIGEgYnVzeSBMYWdvcyBtb3RvciBwYXJrPC90ZXh0PgogICAgICAgICAgICA8dGV4dCB4PSI0OCIgeT0iMTA0IiBmaWxsPSIjNTI2NzVmIiBmb250LXNpemU9IjE1Ij5UaGUgdG9vbHMgaGF2ZSBkaWZmZXJlbnQgam9icywganVzdCBsaWtlIHRoZSBwZW9wbGUgYW5kIHBhcnRzIG9mIGEgam91cm5leS48L3RleHQ+CgogICAgICAgICAgICA8cGF0aCBkPSJNIDIyMiAzMTcgSCAyNzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzE0N2Q1MCIgc3Ryb2tlLXdpZHRoPSIyLjUiIG1hcmtlci1lbmQ9InVybCgjcGFyay1hcnJvdykiIC8+CiAgICAgICAgICAgIDxwYXRoIGQ9Ik0gNDQyIDMxNyBIIDQ5MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMTQ3ZDUwIiBzdHJva2Utd2lkdGg9IjIuNSIgbWFya2VyLWVuZD0idXJsKCNwYXJrLWFycm93KSIgLz4KICAgICAgICAgICAgPHBhdGggZD0iTSA2NjIgMzE3IEggNzEwIiBmaWxsPSJub25lIiBzdHJva2U9IiMxNDdkNTAiIHN0cm9rZS13aWR0aD0iMi41IiBtYXJrZXItZW5kPSJ1cmwoI3BhcmstYXJyb3cpIiAvPgoKICAgICAgICAgICAgPHJlY3QgeD0iNDgiIHk9IjIxOCIgd2lkdGg9IjE3NCIgaGVpZ2h0PSIxOTgiIHJ4PSIxNiIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjZDllNGQ5IiBzdHJva2Utd2lkdGg9IjEuNSIgLz4KICAgICAgICAgICAgPGNpcmNsZSBjeD0iNzYiIGN5PSIyNDYiIHI9IjE1IiBmaWxsPSIjZTZhODNiIj48L2NpcmNsZT4KICAgICAgICAgICAgPHRleHQgeD0iNzYiIHk9IjI1MSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzE3MzMyYiIgZm9udC1zaXplPSIxMyIgZm9udC13ZWlnaHQ9IjcwMCI+MTwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iMTM1IiB5PSIyNTIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM1MjY3NWYiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSI3MDAiIGxldHRlci1zcGFjaW5nPSIxIj5USEUgVFJBVkVMTEVSPC90ZXh0PgogICAgICAgICAgICA8dGV4dCB4PSIxMzUiIHk9IjI5MyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzE3MzMyYiIgZm9udC1zaXplPSIxOCIgZm9udC13ZWlnaHQ9IjcwMCI+WW91PC90ZXh0PgogICAgICAgICAgICA8dGV4dCB4PSIxMzUiIHk9IjMyNyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzUyNjc1ZiIgZm9udC1zaXplPSIxMyI+Q2FsbCBvdXQgdGhlIHRyaXA6PC90ZXh0PgogICAgICAgICAgICA8dGV4dCB4PSIxMzUiIHk9IjM1MyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzE0N2Q1MCIgZm9udC1zaXplPSIxMyIgZm9udC1mYW1pbHk9InVpLW1vbm9zcGFjZSwgbW9ub3NwYWNlIj5sYWIucmVuZGVyPC90ZXh0PgogICAgICAgICAgICA8dGV4dCB4PSIxMzUiIHk9IjM4NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzUyNjc1ZiIgZm9udC1zaXplPSIxMiI+dGhlIHRhc2sgeW91IG5lZWQ8L3RleHQ+CgogICAgICAgICAgICA8cmVjdCB4PSIyNzAiIHk9IjIxOCIgd2lkdGg9IjE3MiIgaGVpZ2h0PSIxOTgiIHJ4PSIxNiIgZmlsbD0iI2VkZjVlZSIgc3Ryb2tlPSIjMTQ3ZDUwIiBzdHJva2Utd2lkdGg9IjIuNSIgLz4KICAgICAgICAgICAgPGNpcmNsZSBjeD0iMjk4IiBjeT0iMjQ2IiByPSIxNSIgZmlsbD0iIzE0N2Q1MCI+PC9jaXJjbGU+CiAgICAgICAgICAgIDx0ZXh0IHg9IjI5OCIgeT0iMjUxIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEzIiBmb250LXdlaWdodD0iNzAwIj4yPC90ZXh0PgogICAgICAgICAgICA8dGV4dCB4PSIzNTYiIHk9IjI1MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzE0N2Q1MCIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9IjcwMCIgbGV0dGVyLXNwYWNpbmc9IjEiPlBBUksgTUFSU0hBTDwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iMzU2IiB5PSIyOTMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMxNzMzMmIiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtd2VpZ2h0PSI3MDAiPk1ha2ltPC90ZXh0PgogICAgICAgICAgICA8dGV4dCB4PSIzNTYiIHk9IjMyNyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzUyNjc1ZiIgZm9udC1zaXplPSIxMiI+Q2hlY2tzIHRoZSByb3V0ZSBib2FyZDwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iMzU2IiB5PSIzNTEiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM1MjY3NWYiIGZvbnQtc2l6ZT0iMTIiPmFuZCBwb2ludHMgdG8gdGhlIHJpZ2h0IGpvYjwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iMzU2IiB5PSIzODYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMxNzMzMmIiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSI2MDAiPi5tYWtpbS55YW1sPC90ZXh0PgoKICAgICAgICAgICAgPHJlY3QgeD0iNDkwIiB5PSIyMTgiIHdpZHRoPSIxNzIiIGhlaWdodD0iMTk4IiByeD0iMTYiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iI2Q5ZTRkOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIC8+CiAgICAgICAgICAgIDxjaXJjbGUgY3g9IjUxOCIgY3k9IjI0NiIgcj0iMTUiIGZpbGw9IiNlNmE4M2IiPjwvY2lyY2xlPgogICAgICAgICAgICA8dGV4dCB4PSI1MTgiIHk9IjI1MSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzE3MzMyYiIgZm9udC1zaXplPSIxMyIgZm9udC13ZWlnaHQ9IjcwMCI+MzwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iNTc2IiB5PSIyNTIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM1MjY3NWYiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSI3MDAiIGxldHRlci1zcGFjaW5nPSIxIj5EQU5GTyArIEVOR0lORTwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iNTc2IiB5PSIyOTMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMxNzMzMmIiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtd2VpZ2h0PSI3MDAiPlF1YXJ0byBkcml2ZXM8L3RleHQ+CiAgICAgICAgICAgIDx0ZXh0IHg9IjU3NiIgeT0iMzI3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNTI2NzVmIiBmb250LXNpemU9IjEyIj5QeXRob24gKyBKdXB5dGVyIHJ1bjwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iNTc2IiB5PSIzNTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM1MjY3NWYiIGZvbnQtc2l6ZT0iMTIiPnRoZSBub3RlYm9vayBwYXNzZW5nZXImIzM5O3M8L3RleHQ+CiAgICAgICAgICAgIDx0ZXh0IHg9IjU3NiIgeT0iMzczIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNTI2NzVmIiBmb250LXNpemU9IjEyIj5jb2RlIGNlbGxzPC90ZXh0PgoKICAgICAgICAgICAgPHJlY3QgeD0iNzEwIiB5PSIyMTgiIHdpZHRoPSIyMDIiIGhlaWdodD0iMTk4IiByeD0iMTYiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iI2Q5ZTRkOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIC8+CiAgICAgICAgICAgIDxjaXJjbGUgY3g9IjczOCIgY3k9IjI0NiIgcj0iMTUiIGZpbGw9IiNlNmE4M2IiPjwvY2lyY2xlPgogICAgICAgICAgICA8dGV4dCB4PSI3MzgiIHk9IjI1MSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzE3MzMyYiIgZm9udC1zaXplPSIxMyIgZm9udC13ZWlnaHQ9IjcwMCI+NDwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iODExIiB5PSIyNTIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM1MjY3NWYiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSI3MDAiIGxldHRlci1zcGFjaW5nPSIxIj5USEUgREVTVElOQVRJT048L3RleHQ+CiAgICAgICAgICAgIDx0ZXh0IHg9IjgxMSIgeT0iMjkzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMTczMzJiIiBmb250LXNpemU9IjE4IiBmb250LXdlaWdodD0iNzAwIj5IVE1MIGxlc3NvbjwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iODExIiB5PSIzMjciIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM1MjY3NWYiIGZvbnQtc2l6ZT0iMTIiPlRoZSB3ZWIgcGFnZSBhcnJpdmVzPC90ZXh0PgogICAgICAgICAgICA8dGV4dCB4PSI4MTEiIHk9IjM1MSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzUyNjc1ZiIgZm9udC1zaXplPSIxMiI+cmVhZHkgdG8gb3BlbiBpbiBhIGJyb3dzZXI8L3RleHQ+CiAgICAgICAgICAgIDx0ZXh0IHg9IjgxMSIgeT0iMzg2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMTQ3ZDUwIiBmb250LXNpemU9IjEyIiBmb250LWZhbWlseT0idWktbW9ub3NwYWNlLCBtb25vc3BhY2UiPnRvb2xpbmctbGFiLmh0bWw8L3RleHQ+CgogICAgICAgICAgICA8cmVjdCB4PSI0OCIgeT0iNDU1IiB3aWR0aD0iODY0IiBoZWlnaHQ9IjgyIiByeD0iMTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iI2Q5ZTRkOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIC8+CiAgICAgICAgICAgIDx0ZXh0IHg9IjcyIiB5PSI0ODMiIGZpbGw9IiM1MjY3NWYiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSI3MDAiIGxldHRlci1zcGFjaW5nPSIxIj5USEUgSk9VUk5FWSBJTiBPTkUgTElORTwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iNzIiIHk9IjUxMiIgZmlsbD0iIzE3MzMyYiIgZm9udC1zaXplPSIxNCI+PHRzcGFuIGZvbnQtd2VpZ2h0PSI3MDAiPlJvdXRlIGJvYXJkOjwvdHNwYW4+IC5tYWtpbS55YW1sPC90ZXh0PgogICAgICAgICAgICA8dGV4dCB4PSIzNjAiIHk9IjUxMiIgZmlsbD0iIzE3MzMyYiIgZm9udC1zaXplPSIxNCI+PHRzcGFuIGZvbnQtd2VpZ2h0PSI3MDAiPlBhc3Nlbmdlcjo8L3RzcGFuPiB0b29saW5nLWxhYi5pcHluYjwvdGV4dD4KICAgICAgICAgICAgPHRleHQgeD0iNjkwIiB5PSI1MTIiIGZpbGw9IiMxNzMzMmIiIGZvbnQtc2l6ZT0iMTQiPjx0c3BhbiBmb250LXdlaWdodD0iNzAwIj5EZXN0aW5hdGlvbjo8L3RzcGFuPiBIVE1MPC90ZXh0PgogICAgICAgICAgPC9zdmc+" class="figure-img"></p>
+</div>
+<p>
+On a phone, swipe inside the diagram to travel from the task name to the finished lesson.
+</p>
+<figcaption>
+Diagram 2: the Lagos motor-park version
+</figcaption>
+</figure>
+<p>One more Nigerian picture: Conda sets up the market stall with the main tools, and Poetry keeps the written list of Python add-ons and versions. Makim is the park marshal; it sends the job to Quarto, but it does not drive the danfo or run the notebook code itself.</p>
+<p>The full command saved in Makim is:</p>
+<pre><code>quarto render notebooks/tooling-lab.ipynb --to html --execute</code></pre>
+<p>We type a task name instead of remembering that whole command. The <code>--execute</code> part tells Quarto to run the notebook cells while rendering. Without it, Quarto expects the notebook to have already been run and saved.</p>
+</section>
+<section id="problems-we-hit-and-how-we-fixed-them" class="level2">
+<h2 class="anchored" data-anchor-id="problems-we-hit-and-how-we-fixed-them">Problems we hit and how we fixed them</h2>
+<p>We built the setup one step at a time. These problems helped us learn which tool was responsible and what it needed.</p>
+<ol type="1">
+<li><strong>The folder was empty and was not a Git repo.</strong> Git could not show a branch or remote yet. We cloned the GitHub repo into the folder, then created the Stage 1 branch.</li>
+<li><strong>Conda was not found after installation.</strong> We chose not to let the installer edit the shell profile. We loaded Conda's shell hook in the current terminal; a new terminal needs the hook again unless we choose to initialize the shell later.</li>
+<li><strong>Poetry saw Python 3.13 instead of the required 3.12.</strong> The old <code>VIRTUAL_ENV</code> setting pointed at another virtual environment. We used <code>env -u VIRTUAL_ENV</code> for the Poetry command so it could use the Conda Python 3.12 environment.</li>
+<li><strong>There were no project setup files to start from.</strong> We wrote <code>environment.yml</code>, <code>pyproject.toml</code> and <code>.makim.yaml</code> ourselves in Neovim. That made each file's purpose visible instead of hiding it behind a setup wizard.</li>
+<li><strong>Poetry refreshed packages already in the Conda environment.</strong> The install showed many package updates. It completed successfully, but it also showed that Poetry and Conda were working in the same environment during this experiment.</li>
+<li><strong>Makim first stopped with “No module named click”.</strong> Makim needed the Python package <code>click</code>, but it was missing from the project's install. We added it to <code>pyproject.toml</code>, refreshed the lock file, and installed again.</li>
+<li><strong>Makim first said its config file was missing.</strong> It looks for <code>.makim.yaml</code> by default. We created that file and added the <code>lab.hello</code> and <code>lab.render</code> tasks.</li>
+<li><strong>YAML treated punctuation in a command as special syntax.</strong> We quoted the full <code>echo</code> command in the YAML file so its colon was read as part of the text.</li>
+<li><strong><code>quarto update</code> asked us for an extension.</strong> That command is for updating a Quarto extension, not a general software updater. We used Quarto's version and render commands for this lab instead.</li>
+<li><strong>Our first search did not find the notebook's greeting.</strong> The code had not yet been saved in the notebook file. We saved the notebook and checked <code>tooling-lab.ipynb</code> again.</li>
+<li><strong>The first HTML page did not show fresh cell output.</strong> Quarto had not been told to execute the notebook. Adding <code>--execute</code> made it run the cells before writing HTML.</li>
+<li><strong>Generated files appeared as untracked Git files.</strong> Jupyter checkpoints and Quarto's HTML and supporting files are build output. We added ignore rules so they do not clutter normal Git status.</li>
+<li><strong>Xonsh printed a deprecation warning.</strong> Makim selected Xonsh as its shell and one old setting was deprecated. The warning did not stop either task; both Makim commands completed.</li>
+</ol>
+</section>
+<section id="what-difference-did-makim-make" class="level2">
+<h2 class="anchored" data-anchor-id="what-difference-did-makim-make">What difference did Makim make?</h2>
+<p>Without Makim, we would type the long Quarto command ourselves. With Makim, the command has a name: <code>lab.render</code>. The task is written down once, so we can run it again later or share it with another learner.</p>
+<section id="makim-helps-with-repeatable-tasks" class="level3">
+<h3 class="anchored" data-anchor-id="makim-helps-with-repeatable-tasks">Makim helps with repeatable tasks</h3>
+<ul>
+<li>Run the notebook or build course pages.</li>
+<li>Run checks and tests before sharing changes.</li>
+<li>Format or check code with tools such as Ruff.</li>
+<li>Preview lessons or documentation on a laptop.</li>
+<li>Clean generated files when we want a fresh build.</li>
+</ul>
+<p>Those are ideas for future tasks. In Stage 1, we made <code>lab.hello</code> and <code>lab.render</code>.</p>
+</section>
+</section>
+<section id="the-full-makim-file-explained-line-by-line" class="level2">
+<h2 class="anchored" data-anchor-id="the-full-makim-file-explained-line-by-line">The full Makim file, explained line by line</h2>
+<p>This is the whole <code>.makim.yaml</code> file we made. It gives two commands short names.</p>
+<pre><code>groups:
   lab:
     tasks:
       hello:
@@ -580,66 +238,463 @@
       render:
         help: Render the Jupyter notebook to HTML with Quarto
         run: quarto render notebooks/tooling-lab.ipynb --to html --execute</code></pre>
+<ol type="1">
+<li><code>groups:</code> tells Makim that task groups follow.</li>
+<li><code>lab:</code> names our group. It becomes the first part of a task name.</li>
+<li><code>tasks:</code> starts the list of commands Makim can run.</li>
+<li><code>hello:</code> names the first task. Together, the group and task make <code>lab.hello</code>.</li>
+<li><code>help:</code> is the short explanation shown in Makim's help screen.</li>
+<li><code>run:</code> tells Makim what shell command to run. Here, <code>echo</code> prints a message.</li>
+<li><code>render:</code> names the second task. Together with <code>lab</code>, it becomes <code>lab.render</code>.</li>
+<li>The second <code>help:</code> describes the render task in the help screen.</li>
+<li>The second <code>run:</code> starts Quarto. <code>render</code> means make an output file; the notebook path is the input; <code>--to html</code> chooses a web page; <code>--execute</code> tells Quarto to run the Python cells first.</li>
+</ol>
+<section id="the-command-we-typed" class="level3">
+<h3 class="anchored" data-anchor-id="the-command-we-typed">The command we typed</h3>
+<pre><code>env -u VIRTUAL_ENV poetry run makim lab.render</code></pre>
+<ul>
+<li><code>env -u VIRTUAL_ENV</code> hides the old Python environment setting for this one command.</li>
+<li><code>poetry run</code> starts the next command in the environment Poetry is using.</li>
+<li><code>makim</code> starts the task runner.</li>
+<li><code>lab.render</code> asks it to run the <code>render</code> task in the <code>lab</code> group.</li>
+</ul>
+<p>The full command is used because this computer had an old environment setting pointing to Python 3.13. In this Stage 1 setup, removing that setting lets Poetry use the Conda environment with Python 3.12.</p>
+</section>
+</section>
+<section id="what-makim-does-not-do" class="level2">
+<h2 class="anchored" data-anchor-id="what-makim-does-not-do">What Makim does not do</h2>
+<p>Makim does not install Python, manage package versions, or write notebook lessons. Conda and Poetry set up the tools and packages. Jupyter runs code cells. Quarto renders the notebook. Makim coordinates the commands.</p>
+<p>The notebook is stored on GitHub, and the link above opens it in Google Colab. The rendered HTML file is a separate web page.</p>
+</section>
+<section id="what-comes-next" class="level2">
+<h2 class="anchored" data-anchor-id="what-comes-next">What comes next?</h2>
+<p>Stage 1 is our saved starting point: Conda + Poetry + Makim. Next, we will try Pixi + Makim, then Pixi + Just, and compare how each setup feels while using the same notebook.</p>
+</section>
+<section id="the-qmd-first-setup-we-use-now" class="level2">
+<h2 class="anchored" data-anchor-id="the-qmd-first-setup-we-use-now">The QMD-first setup we use now</h2>
+<p>The earlier sections and diagrams describe our first version. We now keep two QMD source files:</p>
+<ul>
+<li><code>stage-1-guide.qmd</code> is the blog page. Makim task <code>lab.guide</code> asks Quarto to create <code>stage-1-guide.html</code>.</li>
+<li><code>notebooks/tooling-lab.qmd</code> is the notebook source. Makim task <code>lab.notebook</code> asks Quarto to create <code>notebooks/tooling-lab.ipynb</code>.</li>
+</ul>
+<p>The guide and the notebook both link to the same Colab notebook. The notebook can also be downloaded from the guide. <code>quarto convert</code> creates the notebook file; it does not run its Python code. Open the notebook in Colab to run the code there.</p>
+<p>Makim is like the marshal at a Lagos motor park: it sends each job to the right place. Quarto does the document work, and Colab is where the learner runs the notebook.</p>
+<p>The two Makim tasks are:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">notebook</span><span class="kw">:</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">run</span><span class="kw">:</span><span class="at"> quarto convert notebooks/tooling-lab.qmd --output notebooks/tooling-lab.ipynb</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">guide</span><span class="kw">:</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">run</span><span class="kw">:</span><span class="at"> quarto render stage-1-guide.qmd --to html</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Run them with:</p>
+<pre class="text"><code>env -u VIRTUAL_ENV poetry run makim lab.notebook
+env -u VIRTUAL_ENV poetry run makim lab.guide</code></pre>
+<p>Learn more: <a href="https://makim.org/">Makim documentation</a> · <a href="https://quarto.org/docs/computations/python">Quarto and Python notebooks</a></p>
+</section>
 
-      <ol class="error-list">
-        <li><code>groups:</code> tells Makim that task groups follow.</li>
-        <li><code>lab:</code> names our group. It becomes the first part of a task name.</li>
-        <li><code>tasks:</code> starts the list of commands Makim can run.</li>
-        <li><code>hello:</code> names the first task. Together, the group and task make <code>lab.hello</code>.</li>
-        <li><code>help:</code> is the short explanation shown in Makim's help screen.</li>
-        <li><code>run:</code> tells Makim what shell command to run. Here, <code>echo</code> prints a message.</li>
-        <li><code>render:</code> names the second task. Together with <code>lab</code>, it becomes <code>lab.render</code>.</li>
-        <li>The second <code>help:</code> describes the render task in the help screen.</li>
-        <li>The second <code>run:</code> starts Quarto. <code>render</code> means make an output file; the notebook path is the input; <code>--to html</code> chooses a web page; <code>--execute</code> tells Quarto to run the Python cells first.</li>
-      </ol>
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
 
-      <h3>The command we typed</h3>
-      <pre><code>env -u VIRTUAL_ENV poetry run makim lab.render</code></pre>
-      <ul>
-        <li><code>env -u VIRTUAL_ENV</code> hides the old Python environment setting for this one command.</li>
-        <li><code>poetry run</code> starts the next command in the environment Poetry is using.</li>
-        <li><code>makim</code> starts the task runner.</li>
-        <li><code>lab.render</code> asks it to run the <code>render</code> task in the <code>lab</code> group.</li>
-      </ul>
-      <p class="note">
-        The full command is used because this computer had an old environment
-        setting pointing to Python 3.13. In this Stage 1 setup, removing that
-        setting lets Poetry use the Conda environment with Python 3.12.
-      </p>
-    </section>
 
-    <section>
-      <h2>What Makim does not do</h2>
-      <p>
-        Makim does not install Python, manage package versions, or write
-        notebook lessons. Conda and Poetry set up the tools and packages.
-        Jupyter runs code cells. Quarto renders the notebook. Makim
-        coordinates the commands.
-      </p>
-      <p>
-        The notebook is stored on GitHub, and the link above opens it in
-        Google Colab. The rendered HTML file is a separate web page.
-      </p>
-    </section>
 
-    <section>
-      <h2>What comes next?</h2>
-      <p>
-        Stage 1 is our saved starting point: Conda + Poetry + Makim.
-        Next, we will try Pixi + Makim, then Pixi + Just, and compare how
-        each setup feels while using the same notebook.
-      </p>
-    </section>
 
-    <footer>
-      <p>
-        Learn more:
-        <a href="https://makim.org/">Makim documentation</a> ·
-        <a href="https://quarto.org/docs/computations/python">
-          Quarto and Python notebooks
-        </a>
-      </p>
-    </footer>
-  </main>
-</body>
-</html>
+</body></html>
