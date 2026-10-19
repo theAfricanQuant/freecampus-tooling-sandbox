@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stage 1: From notebook to web page</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17332b;
+      --muted: #52675f;
+      --paper: #fbf8ef;
+      --card: #ffffff;
+      --green: #147d50;
+      --gold: #e6a83b;
+      --line: #d9e4d9;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 1rem/1.65 system-ui, sans-serif;
+    }
+
+    main {
+      width: min(100% - 2rem, 850px);
+      margin: 0 auto;
+      padding: 2rem 0 4rem;
+    }
+
+    header {
+      padding: 1.5rem;
+      border-radius: 1.25rem;
+      background: var(--ink);
+      color: white;
+    }
+
+    header p { color: #dcebe2; }
+
+    .tag {
+      color: #f7ce77;
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1 { line-height: 1.15; }
+    h2 { margin-top: 2.5rem; }
+    h3 { margin-bottom: .3rem; }
+
+    .card, .step {
+      padding: 1rem 1.2rem;
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      background: var(--card);
+    }
+
+    .steps {
+      display: grid;
+      gap: .5rem;
+      padding: 0;
+      list-style: none;
+    }
+
+    .step strong { color: var(--green); }
+
+    .arrow {
+      color: var(--green);
+      font-size: 1.5rem;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .tool-grid {
+      display: grid;
+      gap: .8rem;
+    }
+
+    .tool { border-top: 4px solid var(--green); }
+    .tool:nth-child(even) { border-top-color: var(--gold); }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+
+    code {
+      overflow-wrap: anywhere;
+      background: #edf3ec;
+      padding: .1rem .3rem;
+      border-radius: .3rem;
+    }
+
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+    }
+
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border-radius: .8rem;
+      background: #17332b;
+      color: white;
+    }
+
+    .diagram-panel {
+      margin: 1.25rem 0;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      background: var(--card);
+    }
+
+    .diagram-panel figcaption {
+      margin: 0 0 .8rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .diagram-scroll {
+      width: 100%;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      border-radius: .75rem;
+      background: var(--paper);
+    }
+
+    .diagram-scroll svg {
+      display: block;
+      width: 100%;
+      min-width: 960px;
+      max-width: none;
+      height: auto;
+      font-family: system-ui, sans-serif;
+    }
+
+    .diagram-caption {
+      margin: .7rem 0 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .colab-launch {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: .8rem;
+      margin: 1rem 0 1.5rem;
+    }
+
+    .colab-link {
+      display: inline-block;
+      padding: .7rem 1rem;
+      border-radius: .65rem;
+      background: var(--green);
+      color: #ffffff;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .colab-link:hover, .colab-link:focus-visible {
+      background: #0e6841;
+      text-decoration: underline;
+    }
+
+    .colab-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .market-note {
+      margin: 1rem 0;
+      padding: 1rem;
+      border-left: 5px solid var(--gold);
+      border-radius: .5rem;
+      background: #fff2d7;
+    }
+
+    .error-list li { margin-bottom: 1rem; }
+    .error-list strong { color: var(--green); }
+
+    .note {
+      padding: 1rem;
+      border-left: 5px solid var(--gold);
+      border-radius: .5rem;
+      background: #fff2d7;
+    }
+
+    a { color: var(--green); }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    @media (min-width: 650px) {
+      main { padding-top: 3rem; }
+      header { padding: 2.5rem; }
+      .tool-grid { grid-template-columns: repeat(2, 1fr); }
+      .steps { grid-template-columns: 1fr 1fr; }
+      .arrow { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="tag">FreeCampus Tooling Lab · Stage 1</p>
+      <h1>From a notebook to a web page</h1>
+      <p>
+        We set up a small Python learning project. We wrote a notebook,
+        ran its code, and turned it into an HTML page that opens in a browser.
+      </p>
+    </header>
+
+    <nav class="colab-launch" aria-label="Notebook actions">
+      <a
+        class="colab-link"
+        href="https://colab.research.google.com/github/theAfricanQuant/freecampus-tooling-sandbox/blob/stage-1/conda-poetry-makim/notebooks/tooling-lab.ipynb"
+        target="_blank"
+        rel="noopener"
+      >
+        Open the Stage 1 notebook in Colab ↗
+      </a>
+      <p class="colab-note">
+        The Stage 1 notebook is now on GitHub. Use this link to open it in
+        Colab; the rendered HTML page is a separate file.
+      </p>
+    </nav>
+
+    <section>
+      <h2>The tools, in plain English</h2>
+      <div class="tool-grid">
+        <article class="card tool">
+          <h3>Conda: sets up the workspace</h3>
+          <p>
+            Think of Conda as setting up a classroom before a lesson.
+            It gives us Python and larger tools such as Quarto and Jupyter.
+            The shopping list is <code>environment.yml</code>.
+          </p>
+        </article>
+
+        <article class="card tool">
+          <h3>Poetry: keeps the Python list</h3>
+          <p>
+            Poetry installs Python add-ons and records their versions.
+            <code>pyproject.toml</code> describes the project;
+            <code>poetry.lock</code> records the exact versions chosen.
+          </p>
+        </article>
+
+        <article class="card tool">
+          <h3>Jupyter: the exercise book</h3>
+          <p>
+            A notebook mixes notes and Python code cells. We saved ours as
+            <code>notebooks/tooling-lab.ipynb</code>.
+          </p>
+        </article>
+
+        <article class="card tool">
+          <h3>Quarto: the publisher</h3>
+          <p>
+            Quarto takes the notebook and makes an HTML page from it.
+            When asked, it also runs the notebook cells through Python.
+          </p>
+        </article>
+
+        <article class="card tool">
+          <h3>Makim: the task organiser</h3>
+          <p>
+            Makim reads <code>.makim.yaml</code> and gives commands short,
+            memorable names. It starts the right tool for each task.
+          </p>
+        </article>
+
+        <article class="card tool">
+          <h3>Git: the project history book</h3>
+          <p>
+            Git records the files and changes, so we can keep the working
+            Stage 1 setup as a checkpoint before trying Stage 2.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>What happens when we render?</h2>
+      <p>
+        First, we name the job: <code>lab.render</code>. Makim looks up that
+        job in <code>.makim.yaml</code>, then starts the command written there.
+        Quarto uses Python and Jupyter to run the notebook cells and makes the
+        finished HTML lesson.
+      </p>
+
+      <figure class="diagram-panel">
+        <figcaption>Diagram 1: the real Stage 1 workflow</figcaption>
+        <div class="diagram-scroll" role="region" tabindex="0" aria-label="Scrollable Stage 1 workflow diagram">
+          <svg viewBox="0 0 960 600" role="img" aria-labelledby="workflow-title workflow-desc">
+            <title id="workflow-title">How Stage 1 turns a task name into an HTML lesson</title>
+            <desc id="workflow-desc">Conda supplies Python, Quarto and Jupyter. Poetry installs Makim and Python packages. The user asks for lab.render; Makim reads the task file and starts Quarto. Quarto uses Python and Jupyter to run the notebook, then writes an HTML lesson.</desc>
+            <defs>
+              <marker id="workflow-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#147d50" />
+              </marker>
+            </defs>
+            <rect x="0" y="0" width="960" height="600" fill="#fbf8ef" />
+            <rect x="48" y="24" width="95" height="25" rx="12" fill="#e6a83b" />
+            <text x="95" y="41" text-anchor="middle" fill="#17332b" font-size="11" font-weight="700" letter-spacing="1">STAGE 1</text>
+            <text x="48" y="78" fill="#17332b" font-size="26" font-weight="700">From a short task name to a web page</text>
+            <text x="48" y="103" fill="#52675f" font-size="15">Each tool has one job. The arrows show how the work moves.</text>
+
+            <rect x="48" y="126" width="864" height="92" rx="16" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
+            <text x="72" y="151" fill="#52675f" font-size="11" font-weight="700" letter-spacing="1.4">THE WORKSPACE TOOLS</text>
+            <line x1="480" y1="160" x2="480" y2="202" stroke="#d9e4d9" stroke-width="1.5" />
+            <text x="72" y="179" fill="#17332b" font-size="16" font-weight="700">Conda</text>
+            <text x="72" y="201" fill="#52675f" font-size="13">Provides Python 3.12, Quarto and Jupyter</text>
+            <text x="516" y="179" fill="#17332b" font-size="16" font-weight="700">Poetry</text>
+            <text x="516" y="201" fill="#52675f" font-size="13">Installs Makim and the Python packages</text>
+
+            <text x="48" y="250" fill="#52675f" font-size="12" font-weight="700" letter-spacing="1.2">THE JOB RUNS IN THIS ORDER</text>
+
+            <path d="M 190 414 H 218" fill="none" stroke="#147d50" stroke-width="2.5" marker-end="url(#workflow-arrow)" />
+            <path d="M 378 414 H 402" fill="none" stroke="#147d50" stroke-width="2.5" marker-end="url(#workflow-arrow)" />
+            <path d="M 562 414 H 586" fill="none" stroke="#147d50" stroke-width="2.5" marker-end="url(#workflow-arrow)" />
+            <path d="M 746 414 H 770" fill="none" stroke="#147d50" stroke-width="2.5" marker-end="url(#workflow-arrow)" />
+            <path d="M 298 300 V 340" fill="none" stroke="#147d50" stroke-width="2" marker-end="url(#workflow-arrow)" />
+
+            <rect x="218" y="264" width="160" height="36" rx="9" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
+            <text x="298" y="279" text-anchor="middle" fill="#52675f" font-size="10" font-weight="700" letter-spacing="1">TASK LIST</text>
+            <text x="298" y="294" text-anchor="middle" fill="#17332b" font-size="12" font-weight="600">.makim.yaml</text>
+
+            <rect x="48" y="340" width="142" height="148" rx="14" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
+            <text x="119" y="369" text-anchor="middle" fill="#52675f" font-size="10" font-weight="700" letter-spacing="1">1 · REQUEST</text>
+            <text x="119" y="405" text-anchor="middle" fill="#17332b" font-size="17" font-weight="700">You ask</text>
+            <text x="119" y="435" text-anchor="middle" fill="#147d50" font-size="13" font-family="ui-monospace, monospace">lab.render</text>
+            <text x="119" y="464" text-anchor="middle" fill="#52675f" font-size="12">the task name</text>
+
+            <rect x="218" y="340" width="160" height="148" rx="14" fill="#edf5ee" stroke="#147d50" stroke-width="2.5" />
+            <text x="298" y="369" text-anchor="middle" fill="#147d50" font-size="10" font-weight="700" letter-spacing="1">2 · DISPATCH</text>
+            <text x="298" y="405" text-anchor="middle" fill="#17332b" font-size="18" font-weight="700">Makim</text>
+            <text x="298" y="435" text-anchor="middle" fill="#52675f" font-size="12">Finds the task in</text>
+            <text x="298" y="456" text-anchor="middle" fill="#52675f" font-size="12">the task list above</text>
+
+            <rect x="402" y="340" width="160" height="148" rx="14" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
+            <text x="482" y="369" text-anchor="middle" fill="#52675f" font-size="10" font-weight="700" letter-spacing="1">3 · RENDER</text>
+            <text x="482" y="405" text-anchor="middle" fill="#17332b" font-size="18" font-weight="700">Quarto</text>
+            <text x="482" y="435" text-anchor="middle" fill="#52675f" font-size="12">Starts the saved</text>
+            <text x="482" y="456" text-anchor="middle" fill="#52675f" font-size="12">render command</text>
+
+            <rect x="586" y="340" width="160" height="148" rx="14" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
+            <text x="666" y="369" text-anchor="middle" fill="#52675f" font-size="10" font-weight="700" letter-spacing="1">4 · EXECUTE</text>
+            <text x="666" y="401" text-anchor="middle" fill="#17332b" font-size="15" font-weight="700">Python + Jupyter</text>
+            <text x="666" y="432" text-anchor="middle" fill="#52675f" font-size="12">Run the notebook's</text>
+            <text x="666" y="453" text-anchor="middle" fill="#52675f" font-size="12">code cells</text>
+
+            <rect x="770" y="340" width="142" height="148" rx="14" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
+            <text x="841" y="369" text-anchor="middle" fill="#52675f" font-size="10" font-weight="700" letter-spacing="1">5 · RESULT</text>
+            <text x="841" y="405" text-anchor="middle" fill="#17332b" font-size="17" font-weight="700">HTML lesson</text>
+            <text x="841" y="435" text-anchor="middle" fill="#52675f" font-size="12">tooling-lab.html</text>
+            <text x="841" y="464" text-anchor="middle" fill="#52675f" font-size="12">opens in a browser</text>
+
+            <line x1="48" y1="526" x2="912" y2="526" stroke="#d9e4d9" stroke-width="1" />
+            <text x="48" y="557" fill="#17332b" font-size="14" font-weight="600">Makim remembers the route; Quarto, Python and Jupyter do the work.</text>
+          </svg>
+        </div>
+        <p class="diagram-caption">On a phone, swipe inside the diagram to follow the full chain.</p>
+      </figure>
+
+      <figure class="diagram-panel">
+        <figcaption>Diagram 2: the Lagos motor-park version</figcaption>
+        <div class="diagram-scroll" role="region" tabindex="0" aria-label="Scrollable Nigerian motor park analogy diagram">
+          <svg viewBox="0 0 960 600" role="img" aria-labelledby="park-title park-desc">
+            <title id="park-title">Makim explained as a Lagos motor park journey</title>
+            <desc id="park-desc">You call out the trip name. Makim is the motor-park marshal who checks the route board, .makim.yaml. Quarto is like the danfo driver. The notebook is the passenger, and the Python and Jupyter kernel is the engine that runs its code. The destination is the HTML lesson.</desc>
+            <defs>
+              <marker id="park-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#147d50" />
+              </marker>
+            </defs>
+            <rect x="0" y="0" width="960" height="600" fill="#fbf8ef" />
+            <rect x="48" y="24" width="110" height="25" rx="12" fill="#e6a83b" />
+            <text x="103" y="41" text-anchor="middle" fill="#17332b" font-size="11" font-weight="700" letter-spacing="1">NIGERIAN LENS</text>
+            <text x="48" y="78" fill="#17332b" font-size="26" font-weight="700">Think of a busy Lagos motor park</text>
+            <text x="48" y="104" fill="#52675f" font-size="15">The tools have different jobs, just like the people and parts of a journey.</text>
+
+            <path d="M 222 317 H 270" fill="none" stroke="#147d50" stroke-width="2.5" marker-end="url(#park-arrow)" />
+            <path d="M 442 317 H 490" fill="none" stroke="#147d50" stroke-width="2.5" marker-end="url(#park-arrow)" />
+            <path d="M 662 317 H 710" fill="none" stroke="#147d50" stroke-width="2.5" marker-end="url(#park-arrow)" />
+
+            <rect x="48" y="218" width="174" height="198" rx="16" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
+            <circle cx="76" cy="246" r="15" fill="#e6a83b" />
+            <text x="76" y="251" text-anchor="middle" fill="#17332b" font-size="13" font-weight="700">1</text>
+            <text x="135" y="252" text-anchor="middle" fill="#52675f" font-size="10" font-weight="700" letter-spacing="1">THE TRAVELLER</text>
+            <text x="135" y="293" text-anchor="middle" fill="#17332b" font-size="18" font-weight="700">You</text>
+            <text x="135" y="327" text-anchor="middle" fill="#52675f" font-size="13">Call out the trip:</text>
+            <text x="135" y="353" text-anchor="middle" fill="#147d50" font-size="13" font-family="ui-monospace, monospace">lab.render</text>
+            <text x="135" y="386" text-anchor="middle" fill="#52675f" font-size="12">the task you need</text>
+
+            <rect x="270" y="218" width="172" height="198" rx="16" fill="#edf5ee" stroke="#147d50" stroke-width="2.5" />
+            <circle cx="298" cy="246" r="15" fill="#147d50" />
+            <text x="298" y="251" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700">2</text>
+            <text x="356" y="252" text-anchor="middle" fill="#147d50" font-size="10" font-weight="700" letter-spacing="1">PARK MARSHAL</text>
+            <text x="356" y="293" text-anchor="middle" fill="#17332b" font-size="18" font-weight="700">Makim</text>
+            <text x="356" y="327" text-anchor="middle" fill="#52675f" font-size="12">Checks the route board</text>
+            <text x="356" y="351" text-anchor="middle" fill="#52675f" font-size="12">and points to the right job</text>
+            <text x="356" y="386" text-anchor="middle" fill="#17332b" font-size="12" font-weight="600">.makim.yaml</text>
+
+            <rect x="490" y="218" width="172" height="198" rx="16" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
+            <circle cx="518" cy="246" r="15" fill="#e6a83b" />
+            <text x="518" y="251" text-anchor="middle" fill="#17332b" font-size="13" font-weight="700">3</text>
+            <text x="576" y="252" text-anchor="middle" fill="#52675f" font-size="10" font-weight="700" letter-spacing="1">DANFO + ENGINE</text>
+            <text x="576" y="293" text-anchor="middle" fill="#17332b" font-size="18" font-weight="700">Quarto drives</text>
+            <text x="576" y="327" text-anchor="middle" fill="#52675f" font-size="12">Python + Jupyter run</text>
+            <text x="576" y="350" text-anchor="middle" fill="#52675f" font-size="12">the notebook passenger's</text>
+            <text x="576" y="373" text-anchor="middle" fill="#52675f" font-size="12">code cells</text>
+
+            <rect x="710" y="218" width="202" height="198" rx="16" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
+            <circle cx="738" cy="246" r="15" fill="#e6a83b" />
+            <text x="738" y="251" text-anchor="middle" fill="#17332b" font-size="13" font-weight="700">4</text>
+            <text x="811" y="252" text-anchor="middle" fill="#52675f" font-size="10" font-weight="700" letter-spacing="1">THE DESTINATION</text>
+            <text x="811" y="293" text-anchor="middle" fill="#17332b" font-size="18" font-weight="700">HTML lesson</text>
+            <text x="811" y="327" text-anchor="middle" fill="#52675f" font-size="12">The web page arrives</text>
+            <text x="811" y="351" text-anchor="middle" fill="#52675f" font-size="12">ready to open in a browser</text>
+            <text x="811" y="386" text-anchor="middle" fill="#147d50" font-size="12" font-family="ui-monospace, monospace">tooling-lab.html</text>
+
+            <rect x="48" y="455" width="864" height="82" rx="14" fill="#ffffff" stroke="#d9e4d9" stroke-width="1.5" />
+            <text x="72" y="483" fill="#52675f" font-size="10" font-weight="700" letter-spacing="1">THE JOURNEY IN ONE LINE</text>
+            <text x="72" y="512" fill="#17332b" font-size="14"><tspan font-weight="700">Route board:</tspan> .makim.yaml</text>
+            <text x="360" y="512" fill="#17332b" font-size="14"><tspan font-weight="700">Passenger:</tspan> tooling-lab.ipynb</text>
+            <text x="690" y="512" fill="#17332b" font-size="14"><tspan font-weight="700">Destination:</tspan> HTML</text>
+          </svg>
+        </div>
+        <p class="diagram-caption">On a phone, swipe inside the diagram to travel from the task name to the finished lesson.</p>
+      </figure>
+
+      <p class="market-note">
+        One more Nigerian picture: Conda sets up the market stall with the main
+        tools, and Poetry keeps the written list of Python add-ons and versions.
+        Makim is the park marshal; it sends the job to Quarto, but it does not
+        drive the danfo or run the notebook code itself.
+      </p>
+
+      <p>The full command saved in Makim is:</p>
+      <pre><code>quarto render notebooks/tooling-lab.ipynb --to html --execute</code></pre>
+
+      <p>
+        We type a task name instead of remembering that whole command. The
+        <code>--execute</code> part tells Quarto to run the notebook cells while
+        rendering. Without it, Quarto expects the notebook to have already been
+        run and saved.
+      </p>
+    </section>
+    <section>
+      <h2>Problems we hit and how we fixed them</h2>
+      <p>
+        We built the setup one step at a time. These problems helped us learn
+        which tool was responsible and what it needed.
+      </p>
+      <ol class="error-list">
+        <li>
+          <strong>The folder was empty and was not a Git repo.</strong>
+          Git could not show a branch or remote yet. We cloned the GitHub repo
+          into the folder, then created the Stage 1 branch.
+        </li>
+        <li>
+          <strong>Conda was not found after installation.</strong>
+          We chose not to let the installer edit the shell profile. We loaded
+          Conda's shell hook in the current terminal; a new terminal needs the
+          hook again unless we choose to initialize the shell later.
+        </li>
+        <li>
+          <strong>Poetry saw Python 3.13 instead of the required 3.12.</strong>
+          The old <code>VIRTUAL_ENV</code> setting pointed at another virtual
+          environment. We used <code>env -u VIRTUAL_ENV</code> for the Poetry
+          command so it could use the Conda Python 3.12 environment.
+        </li>
+        <li>
+          <strong>There were no project setup files to start from.</strong>
+          We wrote <code>environment.yml</code>, <code>pyproject.toml</code>
+          and <code>.makim.yaml</code> ourselves in Neovim. That made each
+          file's purpose visible instead of hiding it behind a setup wizard.
+        </li>
+        <li>
+          <strong>Poetry refreshed packages already in the Conda environment.</strong>
+          The install showed many package updates. It completed successfully,
+          but it also showed that Poetry and Conda were working in the same
+          environment during this experiment.
+        </li>
+        <li>
+          <strong>Makim first stopped with “No module named click”.</strong>
+          Makim needed the Python package <code>click</code>, but it was missing
+          from the project's install. We added it to <code>pyproject.toml</code>,
+          refreshed the lock file, and installed again.
+        </li>
+        <li>
+          <strong>Makim first said its config file was missing.</strong>
+          It looks for <code>.makim.yaml</code> by default. We created that file
+          and added the <code>lab.hello</code> and <code>lab.render</code> tasks.
+        </li>
+        <li>
+          <strong>YAML treated punctuation in a command as special syntax.</strong>
+          We quoted the full <code>echo</code> command in the YAML file so its
+          colon was read as part of the text.
+        </li>
+        <li>
+          <strong><code>quarto update</code> asked us for an extension.</strong>
+          That command is for updating a Quarto extension, not a general
+          software updater. We used Quarto's version and render commands for
+          this lab instead.
+        </li>
+        <li>
+          <strong>Our first search did not find the notebook's greeting.</strong>
+          The code had not yet been saved in the notebook file. We saved the
+          notebook and checked <code>tooling-lab.ipynb</code> again.
+        </li>
+        <li>
+          <strong>The first HTML page did not show fresh cell output.</strong>
+          Quarto had not been told to execute the notebook. Adding
+          <code>--execute</code> made it run the cells before writing HTML.
+        </li>
+        <li>
+          <strong>Generated files appeared as untracked Git files.</strong>
+          Jupyter checkpoints and Quarto's HTML and supporting files are build
+          output. We added ignore rules so they do not clutter normal Git status.
+        </li>
+        <li>
+          <strong>Xonsh printed a deprecation warning.</strong>
+          Makim selected Xonsh as its shell and one old setting was deprecated.
+          The warning did not stop either task; both Makim commands completed.
+        </li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>What difference did Makim make?</h2>
+      <p>
+        Without Makim, we would type the long Quarto command ourselves.
+        With Makim, the command has a name: <code>lab.render</code>.
+        The task is written down once, so we can run it again later or
+        share it with another learner.
+      </p>
+
+      <h3>Makim helps with repeatable tasks</h3>
+      <ul>
+        <li>Run the notebook or build course pages.</li>
+        <li>Run checks and tests before sharing changes.</li>
+        <li>Format or check code with tools such as Ruff.</li>
+        <li>Preview lessons or documentation on a laptop.</li>
+        <li>Clean generated files when we want a fresh build.</li>
+      </ul>
+
+      <p>
+        Those are ideas for future tasks. In Stage 1, we made
+        <code>lab.hello</code> and <code>lab.render</code>.
+      </p>
+    </section>
+
+    <section>
+      <h2>The full Makim file, explained line by line</h2>
+      <p>
+        This is the whole <code>.makim.yaml</code> file we made. It gives
+        two commands short names.
+      </p>
+      <pre><code>groups:
+  lab:
+    tasks:
+      hello:
+        help: Confirm Makim runs in Stage 1
+        run: 'echo "Stage 1: Conda + Poetry + Makim"'
+      render:
+        help: Render the Jupyter notebook to HTML with Quarto
+        run: quarto render notebooks/tooling-lab.ipynb --to html --execute</code></pre>
+
+      <ol class="error-list">
+        <li><code>groups:</code> tells Makim that task groups follow.</li>
+        <li><code>lab:</code> names our group. It becomes the first part of a task name.</li>
+        <li><code>tasks:</code> starts the list of commands Makim can run.</li>
+        <li><code>hello:</code> names the first task. Together, the group and task make <code>lab.hello</code>.</li>
+        <li><code>help:</code> is the short explanation shown in Makim's help screen.</li>
+        <li><code>run:</code> tells Makim what shell command to run. Here, <code>echo</code> prints a message.</li>
+        <li><code>render:</code> names the second task. Together with <code>lab</code>, it becomes <code>lab.render</code>.</li>
+        <li>The second <code>help:</code> describes the render task in the help screen.</li>
+        <li>The second <code>run:</code> starts Quarto. <code>render</code> means make an output file; the notebook path is the input; <code>--to html</code> chooses a web page; <code>--execute</code> tells Quarto to run the Python cells first.</li>
+      </ol>
+
+      <h3>The command we typed</h3>
+      <pre><code>env -u VIRTUAL_ENV poetry run makim lab.render</code></pre>
+      <ul>
+        <li><code>env -u VIRTUAL_ENV</code> hides the old Python environment setting for this one command.</li>
+        <li><code>poetry run</code> starts the next command in the environment Poetry is using.</li>
+        <li><code>makim</code> starts the task runner.</li>
+        <li><code>lab.render</code> asks it to run the <code>render</code> task in the <code>lab</code> group.</li>
+      </ul>
+      <p class="note">
+        The full command is used because this computer had an old environment
+        setting pointing to Python 3.13. In this Stage 1 setup, removing that
+        setting lets Poetry use the Conda environment with Python 3.12.
+      </p>
+    </section>
+
+    <section>
+      <h2>What Makim does not do</h2>
+      <p>
+        Makim does not install Python, manage package versions, or write
+        notebook lessons. Conda and Poetry set up the tools and packages.
+        Jupyter runs code cells. Quarto renders the notebook. Makim
+        coordinates the commands.
+      </p>
+      <p>
+        The notebook is stored on GitHub, and the link above opens it in
+        Google Colab. The rendered HTML file is a separate web page.
+      </p>
+    </section>
+
+    <section>
+      <h2>What comes next?</h2>
+      <p>
+        Stage 1 is our saved starting point: Conda + Poetry + Makim.
+        Next, we will try Pixi + Makim, then Pixi + Just, and compare how
+        each setup feels while using the same notebook.
+      </p>
+    </section>
+
+    <footer>
+      <p>
+        Learn more:
+        <a href="https://makim.org/">Makim documentation</a> ·
+        <a href="https://quarto.org/docs/computations/python">
+          Quarto and Python notebooks
+        </a>
+      </p>
+    </footer>
+  </main>
+</body>
+</html>
