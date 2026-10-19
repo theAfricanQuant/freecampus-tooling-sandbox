@@ -8,7 +8,7 @@ format:
 
 [Download the notebook](notebooks/tooling-lab.ipynb)
 
-[Open the notebook in Google Colab](https://colab.research.google.com/github/theAfricanQuant/freecampus-tooling-sandbox/blob/stage-1/qmd-first/notebooks/tooling-lab.ipynb)
+[Open the notebook in Google Colab](https://colab.research.google.com/github/theAfricanQuant/freecampus-tooling-sandbox/blob/main/notebooks/tooling-lab.ipynb)
 
 
 ::: {}
@@ -21,7 +21,7 @@ code, and turned it into an HTML page that opens in a browser.
 :::
 
 [Open the Stage 1 notebook in Colab
-↗](https://colab.research.google.com/github/theAfricanQuant/freecampus-tooling-sandbox/blob/stage-1/qmd-first/notebooks/tooling-lab.ipynb){.colab-link
+↗](https://colab.research.google.com/github/theAfricanQuant/freecampus-tooling-sandbox/blob/main/notebooks/tooling-lab.ipynb){.colab-link
 target="_blank" rel="noopener"}
 
 The Stage 1 notebook is now on GitHub. Use this link to open it in
