@@ -398,6 +398,22 @@ pixi run makim lab.guide
 Makim found the tasks, Quarto converted the notebook and rendered the guide. Xonsh printed a deprecation warning, but both tasks completed successfully.
 One difference showed up in the generated files: Pixi used Quarto 1.9.38, while the Stage 1 HTML had been made with Quarto 1.10.18. The notebook also picked up a path to the kernel on this computer. We restored those generated files so local paths and tool-version differences would not appear as accidental changes.
 
+## Stage 3: Just + Pixi
+
+Stage 3 keeps Pixi and changes the task runner from Makim to Just. The `justfile` has two recipes. They run the same Quarto commands as Stage 2:
+
+```make
+notebook:
+    quarto convert notebooks/tooling-lab.qmd --output notebooks/tooling-lab.ipynb
+
+guide:
+    quarto render stage-1-guide.qmd --to html
+```
+
+We checked the recipes with `pixi run just --list`, then ran `pixi run just notebook` and `pixi run just guide`.
+
+After confirming they worked, we removed Makim and Click from the Pixi dependencies and removed `.makim.yaml`. This branch now shows Just + Pixi; the previous Stage 2 commit on `main` preserves Makim + Pixi for comparison.
+
 `lab.notebook` makes the Colab-ready notebook. `lab.guide` makes the
 HTML guide. Learn more: [Makim documentation](https://makim.org/) ·
 [Quarto and Python notebooks](https://quarto.org/docs/computations/python)
