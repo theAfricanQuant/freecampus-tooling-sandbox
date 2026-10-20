@@ -99,6 +99,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#what-comes-next" id="toc-what-comes-next" class="nav-link" data-scroll-target="#what-comes-next">What comes next?</a></li>
   <li><a href="#the-qmd-first-setup-we-use-now" id="toc-the-qmd-first-setup-we-use-now" class="nav-link" data-scroll-target="#the-qmd-first-setup-we-use-now">The QMD-first setup we use now</a></li>
   <li><a href="#stage-2-makim-pixi" id="toc-stage-2-makim-pixi" class="nav-link" data-scroll-target="#stage-2-makim-pixi">Stage 2: Makim + Pixi</a></li>
+  <li><a href="#stage-3-just-pixi" id="toc-stage-3-just-pixi" class="nav-link" data-scroll-target="#stage-3-just-pixi">Stage 3: Just + Pixi</a></li>
   </ul>
 </nav>
 </div>
@@ -382,6 +383,17 @@ Diagram 2: the Lagos motor-park version
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> run makim lab.notebook</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pixi</span> run makim lab.guide</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Makim found the tasks, Quarto converted the notebook and rendered the guide. Xonsh printed a deprecation warning, but both tasks completed successfully. One difference showed up in the generated files: Pixi used Quarto 1.9.38, while the Stage 1 HTML had been made with Quarto 1.10.18. The notebook also picked up a path to the kernel on this computer. We restored those generated files so local paths and tool-version differences would not appear as accidental changes.</p>
+</section>
+<section id="stage-3-just-pixi" class="level2">
+<h2 class="anchored" data-anchor-id="stage-3-just-pixi">Stage 3: Just + Pixi</h2>
+<p>Stage 3 keeps Pixi and changes the task runner from Makim to Just. The <code>justfile</code> has two recipes. They run the same Quarto commands as Stage 2:</p>
+<pre class="make"><code>notebook:
+    quarto convert notebooks/tooling-lab.qmd --output notebooks/tooling-lab.ipynb
+
+guide:
+    quarto render stage-1-guide.qmd --to html</code></pre>
+<p>We checked the recipes with <code>pixi run just --list</code>, then ran <code>pixi run just notebook</code> and <code>pixi run just guide</code>.</p>
+<p>After confirming they worked, we removed Makim and Click from the Pixi dependencies and removed <code>.makim.yaml</code>. This branch now shows Just + Pixi; the previous Stage 2 commit on <code>main</code> preserves Makim + Pixi for comparison.</p>
 <p><code>lab.notebook</code> makes the Colab-ready notebook. <code>lab.guide</code> makes the HTML guide. Learn more: <a href="https://makim.org/">Makim documentation</a> · <a href="https://quarto.org/docs/computations/python">Quarto and Python notebooks</a></p>
 </section>
 

@@ -12,7 +12,4 @@ python = "3.12.*"
 quarto = "*"
 jupyterlab = "*"
 ipykernel = "*"
-
-[pypi-dependencies]
-makim = ">=1.29.0, <2"
-click = ">=8.5.0, <9"
+just = ">=1.59.0,<2"
